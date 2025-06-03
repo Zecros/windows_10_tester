@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 Kompatibilitetsresultat</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .result-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .verdict {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        
+        .verdict.compatible {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .verdict.not-compatible {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .verdict.windows11 {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .action-item {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e2f0fd;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Windows 11 Kompatibilitetsresultat</h1>
+            <p>Här är resultatet av din systemanalys</p>
+        </header>
+        
+        <main>
+            <div class="result-box">
+                <h2>Din dators specifikationer:</h2>
+                
+                <div class="result-item">
+                    <span class="result-label">Operativsystem:</span>
+                    <span class="result-value" id="os-version">-</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Processor:</span>
+                    <span class="result-value" id="processor">-</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">RAM-minne:</span>
+                    <span class="result-value" id="ram">-</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">TPM 2.0:</span>
+                    <span class="result-value" id="tpm">-</span>
+                </div>
+            </div>
+            
+            <div id="verdict-windows11" class="verdict windows11" style="display: none;">
+                Du kör redan Windows 11! Det finns inget behov av att uppgradera.
+            </div>
+            
+            <div id="verdict-compatible" class="verdict compatible" style="display: none;">
+                Gratulerar! Din dator uppfyller alla krav för Windows 11.
+            </div>
+            
+            <div id="verdict-not-compatible" class="verdict not-compatible" style="display: none;">
+                Din dator uppfyller inte alla krav för Windows 11.
+            </div>
+            
+            <div id="action-items" style="display: none;">
+                <h3>Rekommenderade åtgärder:</h3>
+                <div id="action-list"></div>
+            </div>
+            
+            <div class="info-box">
+                <h3>Vad händer nu?</h3>
+                <p>Tack för att du använde vårt verktyg för att kontrollera Windows 11-kompatibilitet. Vi sparar minimal information om ditt system för att kunna förbättra vår service och hjälpa fler användare.</p>
+                <p>Om du har frågor eller behöver hjälp med uppgradering till Windows 11, kontakta oss gärna. Vi har experter som kan guida dig genom processen.</p>
+                <a href="index.html" class="button">Tillbaka till startsidan</a>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 Windows 11 Kompatibilitetskontroll. Alla rättigheter förbehållna.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Funktion för att hämta URL-parametrar
+        function getUrlParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const pairs = queryString.split('&');
+            
+            for (const pair of pairs) {
+                const [key, value] = pair.split('=');
+                params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+            }
+            
+            return params;
+        }
+        
+        // Visa systemspecifikationer och bedömning
+        function displayResults() {
+            const params = getUrlParams();
+            
+            // Visa systemspecifikationer
+            document.getElementById('os-version').textContent = params.osVersion || 'Okänd';
+            document.getElementById('processor').textContent = params.processor || 'Okänd';
+            document.getElementById('ram').textContent = params.ramGb ? `${params.ramGb} GB` : 'Okänd';
+            document.getElementById('tpm').textContent = params.tpmEnabled === 'true' ? 'Aktiverad' : 'Ej aktiverad';
+            
+            // Visa rätt bedömning
+            if (params.isWindows11 === 'true') {
+                document.getElementById('verdict-windows11').style.display = 'block';
+            } else if (params.isCompatible === 'true') {
+                document.getElementById('verdict-compatible').style.display = 'block';
+            } else {
+                document.getElementById('verdict-not-compatible').style.display = 'block';
+                
+                // Visa åtgärder om sådana finns
+                if (params.needsAction) {
+                    document.getElementById('action-items').style.display = 'block';
+                    const actionList = document.getElementById('action-list');
+                    
+                    // Dela upp åtgärder om de är separerade med ;
+                    const actions = params.needsAction.split(';');
+                    actions.forEach(action => {
+                        if (action.trim()) {
+                            const actionItem = document.createElement('div');
+                            actionItem.className = 'action-item';
+                            actionItem.textContent = action.trim();
+                            actionList.appendChild(actionItem);
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Kör när sidan har laddats
+        window.addEventListener('DOMContentLoaded', displayResults);
+    </script>
+</body>
+</html>

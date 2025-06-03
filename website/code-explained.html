@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programkod förklarad - Windows 11 Kompatibilitetskontroll</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
+    <style>
+        .code-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding: 20px 0;
+        }
+        
+        .code-section {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .code-section:nth-child(even) {
+            flex-direction: row-reverse;
+            background-color: #e9f3ff;
+        }
+        
+        .code-block {
+            flex: 1;
+            max-width: 60%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .explanation {
+            flex: 1;
+            max-width: 40%;
+            padding: 15px;
+        }
+        
+        .explanation h3 {
+            margin-top: 0;
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 8px;
+        }
+        
+        pre {
+            margin: 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #ffffff;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            background: transparent;
+        }
+        
+        .nav-section {
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e4e8;
+            z-index: 100;
+        }
+        
+        .nav-pills {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .nav-pill {
+            padding: 8px 16px;
+            background-color: #e1e4e8;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pill:hover {
+            background-color: #d1d5da;
+        }
+        
+        .nav-pill.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        
+        .section-icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #0366d6;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        
+        .highlight-box {
+            background-color: #fffbea;
+            border-left: 4px solid #ffdf7e;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .section-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .code-section, .code-section:nth-child(even) {
+                flex-direction: column;
+            }
+            
+            .code-block, .explanation {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Programkod förklarad</h1>
+            <p>En detaljerad genomgång av koden bakom Windows 11 Kompatibilitetskontroll</p>
+            <a href="index.html" class="button">Tillbaka till startsidan</a>
+        </header>
+        
+        <div class="nav-section">
+            <ul class="nav-pills">
+                <li class="nav-pill active" onclick="scrollToSection('section-1')"><span class="section-number">1</span> Import och inställningar</li>
+                <li class="nav-pill" onclick="scrollToSection('section-2')"><span class="section-number">2</span> Dataklasser</li>
+                <li class="nav-pill" onclick="scrollToSection('section-3')"><span class="section-number">3</span> TPM-kontroll</li>
+                <li class="nav-pill" onclick="scrollToSection('section-4')"><span class="section-number">4</span> Systemdetektering</li>
+                <li class="nav-pill" onclick="scrollToSection('section-5')"><span class="section-number">5</span> Huvudprogrammet</li>
+            </ul>
+        </div>
+        
+        <main class="code-container">
+            <section id="section-1" class="code-section">
+                <div class="code-block">
+                    <pre><code class="python">"""Windows 11 Compatibility Checker
+
+Körs som portabelt verktyg för att läsa av hårdvaruinformation och avgöra
+om datorn uppfyller Microsofts minimikrav för Windows 11.
+Skickar minimal sammanfattad data tillbaka till ett API.
+"""
+from __future__ import annotations
+
+import json
+import platform
+import subprocess
+import sys
+import time
+import tkinter as tk
+import webbrowser
+import urllib.parse
+from dataclasses import dataclass
+from tkinter import messagebox, ttk
+from typing import Optional
+
+import psutil
+import requests
+
+API_URL = "https://example.com/api/compat-result"  # TODO: byt vid produktion
+BASE_URL = "http://localhost:8000"  # TODO: byt vid produktion
+
+# Windows 11 minimikrav (förenklat)
+MIN_WIN11_RAM_GB = 4
+SUPPORTED_CPU_GEN = 8  # Intel 8th gen motsv.</code></pre>
+                </div>
+                <div class="explanation">
+                    <h3>1. Import och inställningar</h3>
+                    <p>Denna del definierar alla importerade bibliotek och grundläggande konfiguration för programmet.</p>
+                    <ul>
+                        <li><strong>platform:</strong> Används för att hämta information om ditt operativsystem</li>
+                        <li><strong>psutil:</strong> Hämtar systeminformation som RAM-minne</li>
+                        <li><strong>subprocess:</strong> Kör kommandon på datorn för att kontrollera TPM-status</li>
+                        <li><strong>tkinter:</strong> Bygger användargränssnittet</li>
+                        <li><strong>webbrowser:</strong> Öppnar resultatsidan i din webbläsare</li>
+                    </ul>
+                    <div class="highlight-box">
+                        <strong>Viktigt:</strong> Här definieras också minimikraven för Windows 11, såsom minst 4 GB RAM och processorer från 8:e generationen eller nyare.
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-2" class="code-section">
+                <div class="code-block">
+                    <pre><code class="python">@dataclass
+class Result:
+    os_name: str
+    os_version: str
+    processor: str
+    ram_gb: int
+    tpm_enabled: bool
+    is_compatible: bool
+    is_windows_11: bool = False
+    needs_action: Optional[str] = None
+
+    def to_json(self, email: str) -> str:
+        """Konvertera till JSON för API-anrop"""
+        data = {
+            "email": email,
+            "os": self.os_name,
+            "os_version": self.os_version,
+            "processor": self.processor,
+            "ram_gb": self.ram_gb,
+            "tpm_enabled": self.tpm_enabled,
+            "is_compatible": self.is_compatible,
+            "is_windows_11": self.is_windows_11,
+        }
+        return json.dumps(data)
+        
+    def to_url_params(self) -> str:
+        """Konvertera resultat till URL-parametrar"""
+        params = {
+            "os": self.os_name,
+            "osVersion": self.os_version,
+            "processor": self.processor,
+            "ramGb": str(self.ram_gb),
+            "tpmEnabled": "true" if self.tpm_enabled else "false",
+            "isCompatible": "true" if self.is_compatible else "false",
+            "isWindows11": "true" if self.is_windows_11 else "false",
+        }
+        return urllib.parse.urlencode(params)
+
+    def pretty(self) -> str:
+        lines = [
+            "Windows 11 – kompatibilitetsresultat:",
+            f"Operativsystem: {self.os_version}",
+            f"Processor:      {self.processor}",
+            f"RAM:            {self.ram_gb} GB",
+            f"TPM 2.0:        {'Aktiverad' if self.tpm_enabled else 'Ej aktiverad'}",
+            "",
+            "Bedömning:"
+        ]
+        
+        if self.is_windows_11:
+            lines.append("[OK] Du har redan Windows 11 installerat!")
+        elif self.is_compatible:
+            lines.append("[OK] Din dator uppfyller kraven för Windows 11!")
+        else:
+            lines.append("[X] Datorn uppfyller inte kraven.")
+            if self.needs_action:
+                lines.append(f"   - {self.needs_action}")
+        return "\n".join(lines)</code></pre>
+                </div>
+                <div class="explanation">
+                    <h3>2. Dataklasser för resultat</h3>
+                    <p>Denna klass lagrar all information som programmet samlar in om ditt system och används för att utvärdera kompatibilitet med Windows 11.</p>
+                    
+                    <p>Den har tre viktiga funktioner:</p>
+                    
+                    <ol>
+                        <li><strong>to_json():</strong> Konverterar resultatet till JSON-format för att skicka till servern</li>
+                        <li><strong>to_url_params():</strong> Skapar URL-parametrar för att visa resultatet på webbsidan</li>
+                        <li><strong>pretty():</strong> Skapar en formaterad textrepresentation av resultatet</li>
+                    </ol>
+                    
+                    <div class="highlight-box">
+                        <strong>Teknikdetalj:</strong> Genom att använda Python's <code>@dataclass</code> får vi automatiskt genererade konstruktorer och enkel hantering av dataobjekt.
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-3" class="code-section">
+                <div class="code-block">
+                    <pre><code class="python">def get_tpm_status() -> bool:
+    """Returnerar True om TPM är aktiverat och version >= 2.0"""
+    try:
+        output = subprocess.check_output(
+            [
+                "powershell",
+                "-Command",
+                "(Get-Tpm).TpmPresent, (Get-Tpm).TpmReady"
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        present, ready = output.strip().split()
+        return present.lower() == "true" and ready.lower() == "true"
+    except Exception:
+        return False</code></pre>
+                </div>
+                <div class="explanation">
+                    <h3>3. Kontroll av TPM</h3>
+                    <p>Denna funktion kontrollerar om din dator har TPM 2.0 aktiverat, vilket är ett viktigt säkerhetskrav för Windows 11.</p>
+                    
+                    <p>TPM (Trusted Platform Module) är en säkerhetschip som hjälper till att skydda dina lösenord och krypteringsnycklar. Windows 11 kräver TPM 2.0 för att säkerställa bättre säkerhet.</p>
+                    
+                    <p>Funktionen:</p>
+                    <ol>
+                        <li>Kör ett PowerShell-kommando för att kontrollera TPM-status</li>
+                        <li>Kontrollerar om TPM finns och är aktiverat</li>
+                        <li>Returnerar True om allt är OK, annars False</li>
+                    </ol>
+                    
+                    <div class="highlight-box">
+                        <strong>Tips:</strong> Om TPM inte är aktiverat kan du ofta aktivera det i datorns BIOS-inställningar vid uppstart.
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-4" class="code-section">
+                <div class="code-block">
+                    <pre><code class="python">def detect() -> Result:
+    os_name = platform.system()
+    os_version = " ".join(platform.win32_ver())
+    processor = platform.processor()
+
+    ram_gb = int(psutil.virtual_memory().total / (1024 ** 3))
+
+    tpm_enabled = get_tpm_status()
+    
+    # Kontrollera om det redan är Windows 11
+    is_windows_11 = False
+    try:
+        if 'windows' in os_name.lower():
+            win_ver = platform.win32_ver()[0]
+            is_windows_11 = win_ver.startswith('11') or float(win_ver) >= 11.0
+    except (ValueError, IndexError):
+        pass
+
+    # Enkel CPU-generation check (fungerar främst för Intel):
+    cpu_gen = 0
+    try:
+        import re
+        m = re.search(r"\b(\d{4,5})U?\b", processor)
+        if m:
+            model_num = int(m.group(1))
+            cpu_gen = int(str(model_num)[0])  # första siffran
+    except Exception:
+        pass
+
+    is_compatible = all([
+        ram_gb >= MIN_WIN11_RAM_GB,
+        tpm_enabled,
+        cpu_gen >= SUPPORTED_CPU_GEN,
+    ])
+
+    needs_action = None
+    if not is_compatible and not is_windows_11:
+        issues = []
+        if ram_gb < MIN_WIN11_RAM_GB:
+            issues.append("RAM under 4 GB")
+        if not tpm_enabled:
+            issues.append("Aktivera TPM 2.0 i BIOS")
+        if cpu_gen < SUPPORTED_CPU_GEN:
+            issues.append("Processor behöver vara minst 8-e generationen eller nyare")
+        needs_action = "; ".join(issues)
+
+    return Result(
+        os_name=os_name, 
+        os_version=os_version, 
+        processor=processor, 
+        ram_gb=ram_gb, 
+        tpm_enabled=tpm_enabled, 
+        is_compatible=is_compatible, 
+        is_windows_11=is_windows_11, 
+        needs_action=needs_action
+    )</code></pre>
+                </div>
+                <div class="explanation">
+                    <h3>4. Systemdetektering</h3>
+                    <p>Detta är hjärtat i programmet som samlar in all information om din dator och avgör om den är kompatibel med Windows 11.</p>
+                    
+                    <p>Funktionen kontrollerar:</p>
+                    <ul>
+                        <li><strong>Operativsystem:</strong> Identifierar om du redan kör Windows 11</li>
+                        <li><strong>Processor:</strong> Kontrollerar processormodell och försöker avgöra generation</li>
+                        <li><strong>RAM-minne:</strong> Kontrollerar om du har minst 4 GB RAM</li>
+                        <li><strong>TPM 2.0:</strong> Kontrollerar om TPM 2.0 är aktiverat</li>
+                    </ul>
+                    
+                    <p>Baserat på dessa kontroller avgörs om datorn är kompatibel med Windows 11 och vad som eventuellt behöver åtgärdas.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Processordetektering:</strong> Programmet använder en förenklad metod för att avgöra processorgeneration genom att analysera modellnumret. För Intel-processorer fungerar detta oftast bra.
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-5" class="code-section">
+                <div class="code-block">
+                    <pre><code class="python">def main():
+    # Skapa GUI-fönster
+    root = tk.Tk()
+    root.title("Windows 11 Kompatibilitetskontroll")
+    root.geometry("500x400")
+    root.resizable(False, False)
+    
+    # Centrera fönstret på skärmen
+    window_width = 500
+    window_height = 400
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = int((screen_width / 2) - (window_width / 2))
+    y = int((screen_height / 2) - (window_height / 2))
+    root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+    
+    # Gör en fin bakgrund och stil
+    style = ttk.Style()
+    style.configure('TFrame', background='#f5f7fa')
+    style.configure('TLabel', background='#f5f7fa', font=('Segoe UI', 10))
+    style.configure('TButton', font=('Segoe UI', 10))
+    style.configure('Header.TLabel', font=('Segoe UI', 16, 'bold'))
+    
+    # Huvudframe
+    main_frame = ttk.Frame(root, style='TFrame', padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    # Rubrik
+    header_label = ttk.Label(
+        main_frame, 
+        text="Windows 11 Kompatibilitetskontroll",
+        style='Header.TLabel'
+    )
+    header_label.pack(pady=(0, 20))
+    
+    # Resultatframe
+    result_frame = ttk.Frame(main_frame, style='TFrame')
+    result_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+    
+    # Statussida som visar under kontrollen
+    status_label = ttk.Label(
+        result_frame,
+        text="Kontrollerar ditt system...",
+        font=('Segoe UI', 11)
+    )
+    status_label.pack(pady=10)
+    
+    # Progressbar för visuell feedback
+    progress = ttk.Progressbar(
+        result_frame, 
+        orient="horizontal", 
+        length=300, 
+        mode="indeterminate"
+    )
+    progress.pack(pady=10)
+    progress.start(10)
+    
+    # Resultattext (visas efter kontrollen)
+    result_text = tk.Text(result_frame, height=10, width=50, wrap=tk.WORD)
+    result_text.pack(fill=tk.BOTH, expand=True)
+    result_text.config(state=tk.DISABLED)  # Gör read-only
+    
+    # Anonym e-postadress för rapportering
+    email = f"anonymuser_{int(time.time())}@example.com"
+    
+    def run_check_and_redirect():
+        # Kör kontrollen
+        res = detect()
+        
+        # Skapa URL med resultatparametrar
+        result_url = f"{BASE_URL}/results.html?{res.to_url_params()}"
+        
+        # Öppna webbsidan med resultaten
+        webbrowser.open(result_url)
+        
+        # Skicka även data till API (om det behövs i framtiden)
+        try:
+            headers = {"Content-Type": "application/json"}
+            requests.post("https://example.com/api/submit-results", 
+                         data=res.to_json(email), 
+                         headers=headers, 
+                         timeout=10)
+        except Exception:
+            pass  # Tyst felhantering
+            
+        # Stäng programmet
+        root.destroy()
+    
+    # Kör kontrollen efter en kort fördröjning (så att GUI hinner visa sig)
+    root.after(1000, run_check_and_redirect)
+    
+    # Starta applikationen
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+                </div>
+                <div class="explanation">
+                    <h3>5. Huvudprogrammet</h3>
+                    <p>Detta är huvudfunktionen som skapar användargränssnittet och kör kontrollen.</p>
+                    
+                    <p>Huvudstegen är:</p>
+                    <ol>
+                        <li><strong>Skapa GUI:</strong> Bygger ett enkelt fönster med tkinter</li>
+                        <li><strong>Visa laddningsskärm:</strong> Visar en progressbar medan kontrollen körs</li>
+                        <li><strong>Kör kontrollen:</strong> Efter en kort fördröjning körs systemkontrollen</li>
+                        <li><strong>Skicka data och visa resultat:</strong> Resultatet skickas till servern och webbsidan öppnas för att visa resultatet</li>
+                        <li><strong>Stäng programmet:</strong> Programmet avslutas när allt är klart</li>
+                    </ol>
+                    
+                    <div class="highlight-box">
+                        <strong>Design:</strong> Programmet använder en minimal och användarvänlig design. Det visar en laddningsindikator medan kontrollen görs och öppnar sedan automatiskt webbläsaren för att visa resultatet på ett visuellt tilltalande sätt.
+                    </div>
+                    
+                    <p>När programmet körs använder det <code>root.after(1000, run_check_and_redirect)</code> för att ge användaren en kort stund att se laddningsskärmen innan resultatet visas på webbsidan.</p>
+                </div>
+            </section>
+        </main>
+        
+        <div style="margin: 40px 0; text-align: center;">
+            <a href="index.html" class="button">Tillbaka till startsidan</a>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 Windows 11 Kompatibilitetskontroll. Alla rättigheter förbehållna.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Syntax highlighting
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+        
+        // Scrollning till sektion
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const navPills = document.querySelectorAll('.nav-pill');
+            
+            // Uppdatera aktiv navigeringspill
+            navPills.forEach(pill => {
+                pill.classList.remove('active');
+                if (pill.getAttribute('onclick').includes(sectionId)) {
+                    pill.classList.add('active');
+                }
+            });
+            
+            // Skrolla till sektionen
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
