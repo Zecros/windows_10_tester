@@ -5,7 +5,7 @@ Detta repo innehåller en komplett lösning för att låta kunder testa om deras
 ## Innehåll
 
 ```
-website/     → Statisk webbsida (HTML/CSS/JS)
+react-website/ → React-baserad webbapp
 checker/     → Python-baserat testprogram & byggscript
 PLAN.md      → Projektplan och tidslinje
 README.md    → Du läser den här
@@ -16,12 +16,12 @@ README.md    → Du läser den här
 ### 1. Webbsidan
 
 ```bash
-# Kör en enkel webbserver (t.ex. Python 3.x)
-python -m http.server --directory website 8000
-# Öppna sedan http://localhost:8000 i webbläsaren
+cd react-website
+npm install
+npm run dev
 ```
 
-Webbsidan är helt statisk och kan publiceras på GitHub Pages, Netlify, Vercel m.m.
+Webbappen byggs med React och Vite och har stöd för mörkt läge via en temaväxlare.
 
 ### 2. Testprogrammet
 
