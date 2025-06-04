@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Comic Sans MS", cursive, sans-serif; /* A very distinct test style */
+  margin: 20px; /* Add some margin to make changes more visible */
+}
