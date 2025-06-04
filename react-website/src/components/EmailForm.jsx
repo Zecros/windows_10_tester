@@ -31,24 +31,30 @@ function EmailForm({ onInfoButtonClick }) {
   };
 
   return (
-    <form id="emailForm" onSubmit={handleSubmit}>
-      <input
-        type="email"
-        id="email"
-        placeholder="namn@exempel.se"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <button type="submit" className="primary">Ladda ned testprogram</button>
-      <button
-        id="infoBtn"
-        type="button"
-        className="secondary"
-        onClick={onInfoButtonClick}
-      >
-        Läs mer om programmet
-      </button>
+    <form id="emailForm" className="space-y-4" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label htmlFor="email" className="form-label">E-postadress</label>
+        <input
+          type="email"
+          id="email"
+          className="form-input"
+          placeholder="namn@exempel.se"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div className="flex space-x-4">
+        <button type="submit" className="submit-btn bg-blue-600 hover:bg-blue-700">Ladda ned testprogram</button>
+        <button
+          id="infoBtn"
+          type="button"
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+          onClick={onInfoButtonClick}
+        >
+          Läs mer om programmet
+        </button>
+      </div>
     </form>
   );
 }
