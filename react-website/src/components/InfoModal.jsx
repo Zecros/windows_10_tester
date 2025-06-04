@@ -1,9 +1,542 @@
 import React from 'react';
 
+// Helper function to render code lines with syntax highlighting
+const renderCodeLine = (lineParts) => {
+  return lineParts.map((part, index) => {
+    if (part.children) {
+      return <span key={index} className={part.type ? `py-${part.type}` : ''}>{renderCodeLine(part.children)}</span>;
+    }
+    return <span key={index} className={part.type ? `py-${part.type}` : ''}>{part.text}</span>;
+  });
+};
+
+const codeExplanationData = [
+  {
+    id: 'segment-1',
+    codeLines: [
+      [{ type: 'comment', text: '# Windows 11 Compatibility Checker' }],
+      [
+        { type: 'keyword', text: 'import' },
+        { text: ' ' },
+        { type: 'builtin', text: 'platform' },
+        { text: ', ' },
+        { type: 'builtin', text: 'psutil' },
+        { text: ', ' },
+        { type: 'builtin', text: 'webbrowser' },
+        { text: ', ' },
+        { type: 'builtin', text: 're' },
+      ],
+      [{text: ' '}], // Empty line
+      [{ type: 'comment', text: '# Konstanter för Windows 11 minimikrav' }],
+      [
+        { type: 'variable', text: 'MIN_WIN11_RAM_GB' },
+        { text: ' = ' },
+        { type: 'number', text: '4' },
+      ],
+      [
+        { type: 'variable', text: 'SUPPORTED_CPU_GEN' },
+        { text: ' = ' },
+        { type: 'number', text: '8' },
+      ],
+      [
+        { type: 'variable', text: 'BASE_URL' },
+        { text: ' = ' },
+        { type: 'string', text: '"https://windows11check.example.com"' },
+      ],
+    ],
+    explanation: {
+      title: '1. Initialisering & Konstanter',
+      text: 'Importerar nödvändiga bibliotek och definierar grundläggande konstanter för Windows 11-kompatibilitetskontrollen.',
+      points: [
+        'Standardbibliotek för systeminfo (platform, psutil)',
+        'Webbläsarkontroll (webbrowser)',
+        'Regular expressions (re) för textmatchning',
+        'Minimikrav: 4GB RAM, 8:e gen CPU',
+      ],
+      position: 'right',
+      highlightTarget: true,
+    },
+    topOffsetPx: 20, // Approximate px from the top of the code-content
+  },
+  {
+    id: 'segment-2',
+    codeLines: [
+      [{text: ' '}], // Empty line
+      [
+        { type: 'keyword', text: 'def' },
+        { text: ' ' },
+        { type: 'function', text: 'detect' },
+        { text: '() -> ' },
+        { type: 'class', text: 'Result' },
+        { text: ':' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'os_name' },
+        { text: ' = ' },
+        { type: 'builtin', text: 'platform' },
+        { text: '.system()' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'os_version' },
+        { text: ' = ' },
+        { type: 'string', text: '" "' },
+        { text: '.join(' },
+        { type: 'builtin', text: 'platform' },
+        { text: '.win32_ver())' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'processor' },
+        { text: ' = ' },
+        { type: 'builtin', text: 'platform' },
+        { text: '.processor()' },
+      ],
+      [{text: ' '}], // Empty line
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'ram_gb' },
+        { text: ' = ' },
+        { type: 'builtin', text: 'int' },
+        { text: '(' },
+        { type: 'builtin', text: 'psutil' },
+        { text: '.virtual_memory().total / (' },
+        { type: 'number', text: '1024' },
+        { text: ' ** ' },
+        { type: 'number', text: '3' },
+        { text: '))' },
+      ],
+    ],
+    explanation: {
+      title: '2. Systemdetektering',
+      text: 'Denna funktion samlar in grundläggande information om din dator.',
+      points: [
+        'Operativsystemets namn och version',
+        'Processormodell',
+        'Total mängd RAM-minne (omvandlat till GB)',
+      ],
+      position: 'left',
+      highlightTarget: true,
+    },
+    topOffsetPx: 150,
+  },
+  {
+    id: 'segment-3',
+    codeLines: [
+        [{text: ' '}],
+        [
+            { text: '    ' },
+            { type: 'variable', text: 'tpm_enabled' },
+            { text: ' = get_tpm_status()' },
+        ],
+        [{text: ' '}],
+        [
+            { text: '    ' },
+            { type: 'comment', text: '# Kontrollera om det redan är Windows 11' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'variable', text: 'is_windows_11' },
+            { text: ' = ' },
+            { type: 'keyword', text: 'False' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'keyword', text: 'try' },
+            { text: ':' },
+        ],
+        [
+            { text: '        ' },
+            { type: 'keyword', text: 'if' },
+            { text: ' ' },
+            { type: 'string', text: "'windows'" },
+            { text: ' ' },
+            { type: 'keyword', text: 'in' },
+            { text: ' ' },
+            { type: 'variable', text: 'os_name' },
+            { text: '.lower():' },
+        ],
+        [
+            { text: '            ' },
+            { type: 'variable', text: 'win_ver' },
+            { text: ' = ' },
+            { type: 'builtin', text: 'platform' },
+            { text: '.win32_ver()[' },
+            { type: 'number', text: '0' },
+            { text: ']' },
+        ],
+        [
+            { text: '            ' },
+            { type: 'variable', text: 'is_windows_11' },
+            { text: ' = ' },
+            { type: 'variable', text: 'win_ver' },
+            { text: ".startswith(" },
+            { type: 'string', text: "'11'" },
+            { text: ') ' },
+            { type: 'keyword', text: 'or' },
+            { text: ' ' },
+            { type: 'builtin', text: 'float' },
+            { text: '(' },
+            { type: 'variable', text: 'win_ver' },
+            { text: ') >= ' },
+            { type: 'number', text: '11.0' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'keyword', text: 'except' },
+            { text: ' (' },
+            { type: 'class', text: 'ValueError' },
+            { text: ', ' },
+            { type: 'class', text: 'IndexError' },
+            { text: '):' },
+        ],
+        [
+            { text: '        ' },
+            { type: 'keyword', text: 'pass' },
+        ],
+    ],
+    explanation: {
+      title: '3. TPM & Windows 11 Status',
+      text: 'Kontrollerar om TPM (Trusted Platform Module) är aktivt och om systemet redan kör Windows 11.',
+      points: [
+        'Anropar `get_tpm_status()` (ej visad här) för TPM-info.',
+        'Fångar eventuella fel vid versionskontroll för robusthet.',
+      ],
+      position: 'right',
+      highlightTarget: true,
+    },
+    topOffsetPx: 300,
+  },
+  {
+    id: 'segment-4',
+    codeLines: [
+        [{text: ' '}],
+        [
+            { text: '    ' },
+            { type: 'comment', text: '# Enkel CPU-generation check (fungerar främst för Intel):' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'variable', text: 'cpu_gen' },
+            { text: ' = ' },
+            { type: 'number', text: '0' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'keyword', text: 'try' },
+            { text: ':' },
+        ],
+        [
+            { text: '        ' },
+            { type: 'variable', text: 'm' },
+            { text: ' = ' },
+            { type: 'builtin', text: 're' },
+            { text: '.search(' },
+            { type: 'string', text: 'r"\\b(\\d{4,5})U?\\b"' },
+            { text: ', ' },
+            { type: 'variable', text: 'processor' },
+            { text: ')' },
+        ],
+        [
+            { text: '        ' },
+            { type: 'keyword', text: 'if' },
+            { text: ' ' },
+            { type: 'variable', text: 'm' },
+            { text: ':' },
+        ],
+        [
+            { text: '            ' },
+            { type: 'variable', text: 'model_num' },
+            { text: ' = ' },
+            { type: 'builtin', text: 'int' },
+            { text: '(' },
+            { type: 'variable', text: 'm' },
+            { text: '.group(' },
+            { type: 'number', text: '1' },
+            { text: '))' },
+        ],
+        [
+            { text: '            ' },
+            { type: 'variable', text: 'cpu_gen' },
+            { text: ' = ' },
+            { type: 'builtin', text: 'int' },
+            { text: '(' },
+            { type: 'builtin', text: 'str' },
+            { text: '(' },
+            { type: 'variable', text: 'model_num' },
+            { text: ')[0])  ' },
+            { type: 'comment', text: '# första siffran' },
+        ],
+        [
+            { text: '    ' },
+            { type: 'keyword', text: 'except' },
+            { text: ' ' },
+            { type: 'class', text: 'Exception' },
+            { text: ':' },
+        ],
+        [
+            { text: '        ' },
+            { type: 'keyword', text: 'pass' },
+        ],
+    ],
+    explanation: {
+      title: '4. Processorgeneration',
+      text: 'Försöker avgöra processorgenerationen med ett reguljärt uttryck. Detta är en förenklad metod, primärt för Intel-processorer.',
+      points: [
+        'Letar efter modellnummer (t.ex. 8400 i i5-8400).',
+        'Första siffran i modellnumret antas vara generationen.',
+        'Felhantering om mönstret inte matchar.',
+      ],
+      position: 'left',
+      highlightTarget: true,
+    },
+    topOffsetPx: 500,
+  },
+  {
+    id: 'segment-5',
+    codeLines: [
+      [{text: ' '}],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'is_compatible' },
+        { text: ' = ' },
+        { type: 'builtin', text: 'all' },
+        { text: '([' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'ram_gb' },
+        { text: ' >= ' },
+        { type: 'variable', text: 'MIN_WIN11_RAM_GB' },
+        { text: ',' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'tpm_enabled' },
+        { text: ',' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'cpu_gen' },
+        { text: ' >= ' },
+        { type: 'variable', text: 'SUPPORTED_CPU_GEN' },
+        { text: ',' },
+      ],
+      [
+        { text: '    ' },
+        { text: '])' },
+      ],
+      [{text: ' '}],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'needs_action' },
+        { text: ' = ' },
+        { type: 'keyword', text: 'None' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'keyword', text: 'if' },
+        { text: ' ' },
+        { type: 'keyword', text: 'not' },
+        { text: ' ' },
+        { type: 'variable', text: 'is_compatible' },
+        { text: ' ' },
+        { type: 'keyword', text: 'and' },
+        { text: ' ' },
+        { type: 'keyword', text: 'not' },
+        { text: ' ' },
+        { type: 'variable', text: 'is_windows_11' },
+        { text: ':' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'issues' },
+        { text: ' = []' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'keyword', text: 'if' },
+        { text: ' ' },
+        { type: 'variable', text: 'ram_gb' },
+        { text: ' < ' },
+        { type: 'variable', text: 'MIN_WIN11_RAM_GB' },
+        { text: ':' },
+      ],
+      [
+        { text: '            ' },
+        { type: 'variable', text: 'issues' },
+        { text: '.append(' },
+        { type: 'string', text: '"RAM under 4 GB"' },
+        { text: ')' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'keyword', text: 'if' },
+        { text: ' ' },
+        { type: 'keyword', text: 'not' },
+        { text: ' ' },
+        { type: 'variable', text: 'tpm_enabled' },
+        { text: ':' },
+      ],
+      [
+        { text: '            ' },
+        { type: 'variable', text: 'issues' },
+        { text: '.append(' },
+        { type: 'string', text: '"Aktivera TPM 2.0 i BIOS"' },
+        { text: ')' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'keyword', text: 'if' },
+        { text: ' ' },
+        { type: 'variable', text: 'cpu_gen' },
+        { text: ' < ' },
+        { type: 'variable', text: 'SUPPORTED_CPU_GEN' },
+        { text: ':' },
+      ],
+      [
+        { text: '            ' },
+        { type: 'variable', text: 'issues' },
+        { text: '.append(' },
+        { type: 'string', text: '"Processor behöver vara minst 8-e generationen eller nyare"' },
+        { text: ')' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'needs_action' },
+        { text: ' = ' },
+        { type: 'string', text: '"; "' },
+        { text: '.join(' },
+        { type: 'variable', text: 'issues' },
+        { text: ')' },
+      ],
+    ],
+    explanation: {
+      title: '5. Kompatibilitetsanalys',
+      text: 'Slår samman all insamlad data för att avgöra om systemet är kompatibelt och listar eventuella problem.',
+      points: [
+        'Kontrollerar RAM, TPM och CPU-generation mot minimikraven.',
+        'Om inkompatibel och inte redan Win11, byggs en lista med problem.',
+      ],
+      position: 'right',
+      highlightTarget: true,
+    },
+    topOffsetPx: 700,
+  },
+  {
+    id: 'segment-6',
+    codeLines: [
+      [{text: ' '}],
+      [
+        { text: '    ' },
+        { type: 'keyword', text: 'return' },
+        { text: ' ' },
+        { type: 'class', text: 'Result' },
+        { text: '(' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'os_name' },
+        { text: ', ' },
+        { type: 'variable', text: 'os_version' },
+        { text: ', ' },
+        { type: 'variable', text: 'processor' },
+        { text: ', ' },
+        { type: 'variable', text: 'ram_gb' },
+        { text: ', ' },
+      ],
+      [
+        { text: '        ' },
+        { type: 'variable', text: 'tpm_enabled' },
+        { text: ', ' },
+        { type: 'variable', text: 'is_compatible' },
+        { text: ', ' },
+        { type: 'variable', text: 'is_windows_11' },
+        { text: ', ' },
+        { type: 'variable', text: 'needs_action' },
+      ],
+      [
+        { text: '    ' },
+        { text: ')' },
+      ],
+    ],
+    explanation: {
+      title: '6. Resultatobjekt',
+      text: 'Returnerar ett `Result`-objekt (definition ej visad) som innehåller all systeminformation och kompatibilitetsstatus.',
+      points: [],
+      position: 'left',
+      highlightTarget: false,
+    },
+    topOffsetPx: 980,
+  },
+  {
+    id: 'segment-7',
+    codeLines: [
+      [{text: ' '}],
+      [
+        { type: 'keyword', text: 'def' },
+        { text: ' ' },
+        { type: 'function', text: 'run_check_and_redirect' },
+        { text: '():' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'comment', text: '# Kör kontrollen' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'res' },
+        { text: ' = detect()' },
+      ],
+      [{text: ' '}],
+      [
+        { text: '    ' },
+        { type: 'comment', text: '# Skapa URL med resultatparametrar' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'variable', text: 'result_url' },
+        { text: ' = ' },
+        { type: 'string', text: 'f"{BASE_URL}/results.html?{res.to_url_params}"' },
+      ],
+      [{text: ' '}],
+      [
+        { text: '    ' },
+        { type: 'comment', text: '# Öppna webbsidan med resultaten' },
+      ],
+      [
+        { text: '    ' },
+        { type: 'builtin', text: 'webbrowser' },
+        { text: '.open(' },
+        { type: 'variable', text: 'result_url' },
+        { text: ')' },
+      ],
+      [{text: ' '}], // Trailing empty line for spacing
+    ],
+    explanation: {
+      title: '7. Kör Kontroll & Visa Resultat',
+      text: 'Huvudfunktion som kör kompatibilitetskontrollen och omdirigerar användaren till en webbsida för att visa resultaten.',
+      points: [
+        'Anropar `detect()` för att få resultat.',
+        'Formaterar en URL med resultaten som query-parametrar.',
+        'Öppnar URL:en i användarens standardwebbläsare.',
+      ],
+      position: 'right',
+      highlightTarget: true,
+    },
+    topOffsetPx: 1050,
+  },
+];
+
+
 function InfoModal({ show, onClose }) {
   if (!show) {
     return null;
   }
+
+  // Calculate total number of code lines for line numbering
+  const allCodeLines = codeExplanationData.reduce((acc, segment) => acc.concat(segment.codeLines), []);
 
   return (
     <>
@@ -12,122 +545,50 @@ function InfoModal({ show, onClose }) {
         <button className='info-modal-close-button' onClick={onClose} aria-label='Stäng'>×</button>
         <h2>Programkod förklarad</h2>
         
-        <div className='code-container'>
-          <div className='code-unified-block'>
-            <div className='marker marker-1'>1</div>
-            <div className='marker marker-2'>2</div>
-            <div className='marker marker-3'>3</div>
-            <div className='marker marker-4'>4</div>
-            <div className='marker marker-5'>5</div>
-            <pre><code className='python-code'>
-<span className='py-comment'># Windows 11 Compatibility Checker</span>
-<span className='py-keyword'>import</span> <span className='py-builtin'>platform</span>, <span className='py-builtin'>psutil</span>, <span className='py-builtin'>webbrowser</span>, <span className='py-builtin'>re</span>
-
-<span className='py-comment'># Konstanter för Windows 11 minimikrav</span>
-<span className='py-variable'>MIN_WIN11_RAM_GB</span> = <span className='py-number'>4</span>
-<span className='py-variable'>SUPPORTED_CPU_GEN</span> = <span className='py-number'>8</span>
-<span className='py-variable'>BASE_URL</span> = <span className='py-string'>"https://windows11check.example.com"</span>
-
-<span className='py-keyword'>def</span> <span className='py-function'>detect</span>() -{'>'} <span className='py-class'>Result</span>:
-    <span className='py-variable'>os_name</span> = <span className='py-builtin'>platform</span>.system()
-    <span className='py-variable'>os_version</span> = <span className='py-string'>" "</span>.join(<span className='py-builtin'>platform</span>.win32_ver())
-    <span className='py-variable'>processor</span> = <span className='py-builtin'>platform</span>.processor()
-
-    <span className='py-variable'>ram_gb</span> = <span className='py-builtin'>int</span>(<span className='py-builtin'>psutil</span>.virtual_memory().total / (<span className='py-number'>1024</span> ** <span className='py-number'>3</span>))
-
-    <span className='py-variable'>tpm_enabled</span> = get_tpm_status()
-
-    <span className='py-comment'># Kontrollera om det redan är Windows 11</span>
-    <span className='py-variable'>is_windows_11</span> = <span className='py-keyword'>False</span>
-    <span className='py-keyword'>try</span>:
-        <span className='py-keyword'>if</span> <span className='py-string'>'windows'</span> <span className='py-keyword'>in</span> <span className='py-variable'>os_name</span>.lower():
-            <span className='py-variable'>win_ver</span> = <span className='py-builtin'>platform</span>.win32_ver()[<span className='py-number'>0</span>]
-            <span className='py-variable'>is_windows_11</span> = <span className='py-variable'>win_ver</span>.startswith(<span className='py-string'>'11'</span>) <span className='py-keyword'>or</span> <span className='py-builtin'>float</span>(<span className='py-variable'>win_ver</span>) {'>='} <span className='py-number'>11.0</span>
-    <span className='py-keyword'>except</span> (<span className='py-class'>ValueError</span>, <span className='py-class'>IndexError</span>):
-        <span className='py-keyword'>pass</span>
-
-    <span className='py-comment'># Enkel CPU-generation check (fungerar främst för Intel):</span>
-    <span className='py-variable'>cpu_gen</span> = <span className='py-number'>0</span>
-    <span className='py-keyword'>try</span>:
-        <span className='py-variable'>m</span> = <span className='py-builtin'>re</span>.search(<span className='py-string'>r"\b(\d{'{'}4,5{'}'})U?\b"</span>, <span className='py-variable'>processor</span>)
-        <span className='py-keyword'>if</span> <span className='py-variable'>m</span>:
-            <span className='py-variable'>model_num</span> = <span className='py-builtin'>int</span>(<span className='py-variable'>m</span>.group(<span className='py-number'>1</span>))
-            <span className='py-variable'>cpu_gen</span> = <span className='py-builtin'>int</span>(<span className='py-builtin'>str</span>(<span className='py-variable'>model_num</span>)[<span className='py-number'>0</span>])  <span className='py-comment'># första siffran</span>
-    <span className='py-keyword'>except</span> <span className='py-class'>Exception</span>:
-        <span className='py-keyword'>pass</span>
-
-    <span className='py-variable'>is_compatible</span> = <span className='py-builtin'>all</span>([
-        <span className='py-variable'>ram_gb</span> {'>='} <span className='py-variable'>MIN_WIN11_RAM_GB</span>,
-        <span className='py-variable'>tpm_enabled</span>,
-        <span className='py-variable'>cpu_gen</span> {'>='} <span className='py-variable'>SUPPORTED_CPU_GEN</span>,
-    ])
-
-    <span className='py-variable'>needs_action</span> = <span className='py-keyword'>None</span>
-    <span className='py-keyword'>if</span> <span className='py-keyword'>not</span> <span className='py-variable'>is_compatible</span> <span className='py-keyword'>and</span> <span className='py-keyword'>not</span> <span className='py-variable'>is_windows_11</span>:
-        <span className='py-variable'>issues</span> = []
-        <span className='py-keyword'>if</span> <span className='py-variable'>ram_gb</span> {'<'} <span className='py-variable'>MIN_WIN11_RAM_GB</span>:
-            <span className='py-variable'>issues</span>.append(<span className='py-string'>"RAM under 4 GB"</span>)
-        <span className='py-keyword'>if</span> <span className='py-keyword'>not</span> <span className='py-variable'>tpm_enabled</span>:
-            <span className='py-variable'>issues</span>.append(<span className='py-string'>"Aktivera TPM 2.0 i BIOS"</span>)
-        <span className='py-keyword'>if</span> <span className='py-variable'>cpu_gen</span> {'<'} <span className='py-variable'>SUPPORTED_CPU_GEN</span>:
-            <span className='py-variable'>issues</span>.append(<span className='py-string'>"Processor behöver vara minst 8-e generationen eller nyare"</span>)
-        <span className='py-variable'>needs_action</span> = <span className='py-string'>"; "</span>.join(<span className='py-variable'>issues</span>)
-
-    <span className='py-keyword'>return</span> <span className='py-class'>Result</span>(
-        <span className='py-variable'>os_name</span>, <span className='py-variable'>os_version</span>, <span className='py-variable'>processor</span>, <span className='py-variable'>ram_gb</span>, 
-        <span className='py-variable'>tpm_enabled</span>, <span className='py-variable'>is_compatible</span>, <span className='py-variable'>is_windows_11</span>, <span className='py-variable'>needs_action</span>
-    )
-
-<span className='py-keyword'>def</span> <span className='py-function'>run_check_and_redirect</span>():
-    <span className='py-comment'># Kör kontrollen</span>
-    <span className='py-variable'>res</span> = detect()
-
-    <span className='py-comment'># Skapa URL med resultatparametrar</span>
-    <span className='py-variable'>result_url</span> = <span className='py-string'>f"{'{'}BASE_URL{'}'}/results.html?{'{'}res.to_url_params{'}'}"</span>
-
-    <span className='py-comment'># Öppna webbsidan med resultaten</span>
-    <span className='py-builtin'>webbrowser</span>.open(<span className='py-variable'>result_url</span>)
-            </code></pre>
+        <div className="code-editor-container font-mono"> {/* Ensure mono font stack */}
+          <div className="editor-toolbar">
+            <div className="file-tab active">
+              <span className="file-icon">📄</span> checker.py
+            </div>
           </div>
-
-          <div className='explanation-container'>
-            <div className='explanation-block' id='explain-1'>
-              <h4>1. Systemdetektering</h4>
-              <p>Denna kod samlar in grundläggande information om din dator, inklusive:</p>
-              <ul>
-                <li>Operativsystemets namn och version</li>
-                <li>Processormodell</li>
-                <li>Mängden RAM-minne</li>
-                <li>Om TPM 2.0 är aktiverat</li>
-              </ul>
+          <div className="editor-content">
+            <div className="line-numbers">
+              {allCodeLines.map((_, index) => (
+                <div key={`ln-${index}`} className="line-number">
+                  {index + 1}
+                </div>
+              ))}
             </div>
-            
-            <div className='explanation-block' id='explain-2'>
-              <h4>2. Windows 11-kontroll</h4>
-              <p>Denna del kontrollerar om du redan kör Windows 11. Detta görs genom att titta på versionsnumret och se om det börjar med "11" eller om det är minst version 11.0.</p>
-            </div>
-            
-            <div className='explanation-block' id='explain-3'>
-              <h4>3. Processorgeneration</h4>
-              <p>Denna del använder en smart metod för att avgöra processorns generation, vilket är viktigt eftersom Windows 11 kräver minst 8:e generationens Intel-processorer (eller motsvarande).</p>
-              <p>Koden letar efter ett 4-5 siffrigt nummer i processornamnet (t.ex. i "Intel Core i5-8400" är 8400 modellnumret). Första siffran (8) indikerar generationen.</p>
-            </div>
-            
-            <div className='explanation-block' id='explain-4'>
-              <h4>4. Minimikrav och åtgärder</h4>
-              <p>Här kontrolleras om din dator uppfyller minimikraven för Windows 11:</p>
-              <ul>
-                <li>Minst 4 GB RAM</li>
-                <li>TPM 2.0 aktiverat</li>
-                <li>Minst 8:e generationens processor</li>
-              </ul>
-              <p>Om något krav inte uppfylls, genereras en lista med åtgärder som du behöver vidta för att göra din dator kompatibel med Windows 11.</p>
-            </div>
-            
-            <div className='explanation-block' id='explain-5'>
-              <h4>5. Återkoppling till webbsidan</h4>
-              <p>När programmet är färdigt med kontrollen, öppnas en webbsida automatiskt som visar resultaten på ett snyggt och tydligt sätt.</p>
-              <p>Alla systemparametrar (OS, processor, RAM, TPM) skickas till webbsidan så att du kan se detaljerad information om din dator och om den är redo för Windows 11.</p>
+            <div className="code-content">
+              <pre><code className="python-code">
+                {codeExplanationData.map(segment => (
+                  <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
+                    {segment.codeLines.map((lineParts, lineIdx) => (
+                      <div key={lineIdx} className="code-line">
+                        {renderCodeLine(lineParts)}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </code></pre>
+              {/* Explanations will be positioned absolutely relative to code-content */}
+              {codeExplanationData.map(segment => (
+                segment.explanation.text && // Only render if there's an explanation
+                <div
+                  key={`exp-${segment.id}`}
+                  className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'}`}
+                  style={{ top: `${segment.topOffsetPx}px` }}
+                >
+                  <h4>{segment.explanation.title}</h4>
+                  <p>{segment.explanation.text}</p>
+                  {segment.explanation.points && segment.explanation.points.length > 0 && (
+                    <ul>
+                      {segment.explanation.points.map((point, idx) => <li key={idx}>{point}</li>)}
+                    </ul>
+                  )}
+                  {/* Arrow will be added via CSS pseudo-elements */}
+                </div>
+              ))}
             </div>
           </div>
         </div>
