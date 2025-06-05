@@ -36,6 +36,17 @@ python checker.py
 # Bygg en portabel exe-fil (kräver Windows & PyInstaller)
 build.bat
 ```
+Vill du peka programmet mot en egen server kan du ange URL:erna via
+miljövariabler eller flaggor:
+
+```bash
+# med miljövariabler
+API_URL=https://example.com/api BASE_URL=https://myhost python checker.py
+
+# eller med flaggor
+python checker.py --api-url https://example.com/api \
+                  --base-url https://myhost
+```
 
 `dist/checker.exe` kan därefter signeras och delas med kunderna.
 
