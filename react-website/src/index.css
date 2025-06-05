@@ -446,3 +446,13 @@ code {
   color: #FF3B30; /* Themed icon color */
   font-size: 1.5rem;
 }
+
+/* Overlay generic content area */
+.overlay-content {
+  margin-top: 1rem;
+}
+
+.side-info-box-inner {
+  backdrop-filter: blur(2px);
+}
+
