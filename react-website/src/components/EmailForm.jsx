@@ -26,30 +26,40 @@ function EmailForm({ onInfoButtonClick }) {
     }
 
     // Trigger download
-    // Assuming checker.exe will be in the public folder of the React app
     window.location.href = '/downloads/checker.exe';
   };
 
   return (
-    <form id="emailForm" className="space-y-4" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="email" className="form-label">E-postadress</label>
+    <form id="emailForm" className="space-y-6" onSubmit={handleSubmit}> {/* Ökad space-y för mer luft */}
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left"> {/* text-left för etiketten */}
+          E-postadress
+        </label>
         <input
           type="email"
           id="email"
-          className="form-input"
+          // Stil inspirerad av Mountain Expeditions - ren och tydlig
+          className="block w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 sm:text-sm"
           placeholder="namn@exempel.se"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
-      <div className="flex space-x-4">
-        <button type="submit" className="submit-btn bg-blue-600 hover:bg-blue-700">Ladda ned testprogram</button>
+      {/* Knappcontainer för bättre responsivitet */}
+      <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+        <button 
+          type="submit" 
+          // Primär knapp - solid, mörkblå (liknande "Read More" i inspirationen)
+          className="w-full sm:w-auto flex-grow justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-offset-gray-800 transition-colors duration-150"
+        >
+          Ladda ned testprogram
+        </button>
         <button
           id="infoBtn"
           type="button"
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+          // Sekundär knapp - ljusare, med ram
+          className="w-full sm:w-auto flex-grow justify-center px-6 py-3 border border-gray-300 dark:border-gray-500 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors duration-150"
           onClick={onInfoButtonClick}
         >
           Läs mer om programmet
