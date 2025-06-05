@@ -6,7 +6,9 @@ Skickar minimal sammanfattad data tillbaka till ett API.
 """
 from __future__ import annotations
 
+import argparse
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -21,8 +23,25 @@ from typing import Optional
 import psutil
 import requests
 
-API_URL = "https://example.com/api/compat-result"  # TODO: byt vid produktion
-BASE_URL = "http://localhost:8000"  # TODO: byt vid produktion
+# Standardadresser (kan skrivas över med miljövariabler eller CLI-flaggor)
+DEFAULT_API_URL = "https://example.com/api/compat-result"
+DEFAULT_BASE_URL = "http://localhost:8000"
+
+# Aktiva adresser som används av programmet
+API_URL = DEFAULT_API_URL
+BASE_URL = DEFAULT_BASE_URL
+
+# Läs in miljövariabler och CLI-flaggor
+def _configure_urls() -> None:
+    """Sätt API_URL och BASE_URL från miljövariabler eller argument."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--api-url", dest="api_url")
+    parser.add_argument("--base-url", dest="base_url")
+    args, _ = parser.parse_known_args()
+
+    global API_URL, BASE_URL
+    API_URL = args.api_url or os.getenv("API_URL", DEFAULT_API_URL)
+    BASE_URL = args.base_url or os.getenv("BASE_URL", DEFAULT_BASE_URL)
 
 # Windows 11 minimikrav (förenklat)
 MIN_WIN11_RAM_GB = 4
@@ -166,6 +185,9 @@ def detect() -> Result:
 
 
 def main():
+    # Läs in användarspecificerade URL:er
+    _configure_urls()
+
     # Skapa GUI-fönster
     root = tk.Tk()
     root.title("Windows 11 Kompatibilitetskontroll")
@@ -243,9 +265,9 @@ def main():
         # Skicka även data till API (om det behövs i framtiden)
         try:
             headers = {"Content-Type": "application/json"}
-            requests.post("https://example.com/api/submit-results", 
-                         data=res.to_json(email), 
-                         headers=headers, 
+            requests.post(API_URL,
+                         data=res.to_json(email),
+                         headers=headers,
                          timeout=10)
         except Exception:
             pass  # Tyst felhantering
