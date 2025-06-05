@@ -7,15 +7,19 @@ function SideInfoBox({ position = 'left', title, summary, hoverInfo, details }) 
     <>
       <div
         className={
-          `group side-info-box-inner w-60 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg cursor-pointer transform transition hover:-translate-y-1` +
+          // Removed bg-white dark:bg-gray-800 to allow CSS to apply themed background
+          `group side-info-box-inner w-60 p-4 shadow-lg rounded-lg cursor-pointer transform transition hover:-translate-y-1` +
           (position === 'left' ? ' text-left' : ' text-right')
         }
         onClick={() => setOpen(true)}
       >
+        {/* Title inherits text color from .side-info-box-inner */}
         <h3 className="text-lg font-semibold mb-1">{title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300">{summary}</p>
+        {/* Summary uses themed secondary text color */}
+        <p className="text-sm text-secondary-text">{summary}</p>
         {hoverInfo && (
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden group-hover:block">
+          // HoverInfo also uses themed secondary text color
+          <p className="mt-2 text-xs text-secondary-text hidden group-hover:block">
             {hoverInfo}
           </p>
         )}

@@ -20,18 +20,26 @@ module.exports = {
         ],
       },
       colors: {
-        primary: '#007AFF', // iOS Blue
-        'primary-tap': '#005ECC', // Darker blue for tap state
-        secondary: '#8E8E93', // iOS Gray
-        background: '#F2F2F7', // iOS Light Background
-        'secondary-background': '#FFFFFF', // iOS White Background
-        text: '#1C1C1E', // iOS Primary Text (Dark Gray)
-        'secondary-text': '#8A8A8D', // iOS Secondary Text (Medium Gray)
-        border: '#C7C7CC', // iOS Border Color
+        // New Palette
+        primary: '#007AFF', // Keeping iOS Blue
+        'primary-tap': '#005ECC', // Darker blue for tap state, consistent with primary
+        background: '#F8F9FA', // Soft, neutral light gray
+        'secondary-background': '#FFFFFF', // White for content cards
+        text: '#212529', // Dark gray for primary text
+        'secondary-text': '#6C757D', // Lighter gray for secondary text
+        border: '#DEE2E6', // Light, subtle border color
+
+        // Existing utility colors (can be kept or adjusted if needed)
+        secondary: '#6C757D', // Using the new secondary-text color for general secondary purposes
         green: '#34C759', // iOS Green
         red: '#FF3B30', // iOS Red
         yellow: '#FFCC00', // iOS Yellow
         blue: '#007AFF', // iOS Blue (same as primary for consistency)
+
+        // It's often good practice to define explicit dark mode colors if they don't purely follow algorithmic changes.
+        // However, for this setup, we'll primarily manage dark mode via CSS variables in index.css
+        // that will reference these base names or new dark-specific names if necessary.
+        // For Tailwind's dark: prefix to work out-of-the-box with these, these are the "light" mode colors.
       }
     },
   },
