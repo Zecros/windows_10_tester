@@ -30,56 +30,7 @@ code {
   /* Consider a more iOS-like mono font if available or important */
 }
 
-/*
-/* Form elements styling - Will be reviewed later, might be replaced by utility classes */
-/* Keeping them for now to avoid breaking existing forms, but ideally refactor with Tailwind classes */
-/*
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.875rem; 
-  font-weight: 500; 
-  color: var(--color-text-secondary);
-  margin-bottom: 0.25rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem; 
-  border: 1px solid var(--color-border);
-  border-radius: 0.375rem; 
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
-}
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3); 
-}
-
-.submit-btn {
-  padding: 0.625rem 1.25rem; 
-  color: #FFFFFF; 
-  background-color: var(--color-primary);
-  border-radius: 0.375rem; 
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
-  font-weight: 500; 
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.15s ease-in-out;
-}
-.submit-btn:hover, .submit-btn:focus {
-  background-color: var(--color-primary-hover);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
-  transform: translateY(-1px); 
-}
-.submit-btn:active {
-  transform: translateY(0px) scale(0.98); 
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-*//* End of commented out conflicting form styles */
+/* Removed unused legacy form styles that conflicted with Tailwind */
 
 /* InfoModal Styles - Review for utility class replacement */
 .modal-overlay {
@@ -427,90 +378,7 @@ code {
   }
 }
 
-/* Form Styles - General forms, not the code viewer parts */
-.form-container {
-  max-width: 500px;
-  width: 100%;
-  margin: 2rem auto; /* Added top/bottom margin */
-  padding: 2rem; /* Tailwind p-8 */
-  background-color: #FFFFFF; /* Themed background */
-  border-radius: 12px; /* iOS like rounded corners */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); /* Softer, more modern shadow */
-}
-
-.form-title {
-  font-size: 1.5rem; /* Tailwind text-2xl */
-  font-weight: 600; /* Tailwind font-semibold */
-  margin-bottom: 1.5rem;
-  color: #1C1C1E; /* Themed text */
-  text-align: center;
-}
-
-/* .form-group is already defined and seems okay, might be replaced by mb-6 utility */
-
-.form-label { /* Already themed earlier, this is a duplicate class definition */
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500; /* Tailwind font-medium */
-  color: #8A8A8D; /* Themed label color */
-}
-
-.form-input { /* Already themed earlier, this is a duplicate class definition */
-  width: 100%;
-  padding: 0.75rem; /* Tailwind p-3 */
-  border: 1px solid #C7C7CC;
-  border-radius: 8px; /* Slightly more rounded for iOS feel */
-  font-size: 1rem; /* Tailwind text-base */
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Consistent transition */
-  background-color: #FFFFFF;
-  color: #1C1C1E;
-}
-
-.form-input:focus { /* Already themed earlier, this is a duplicate class definition */
-  outline: none;
-  border-color: #007AFF;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3); /* Consistent focus shadow */
-}
-
-/* General button styling for .submit-btn was updated earlier.
-   The .submit-btn definition here is a duplicate from a previous merge.
-   The earlier, more specific .submit-btn with hover/focus/active states will take precedence if it appears later in the cascade,
-   or if this one is removed. Assuming earlier one is primary.
-   For safety, I'll ensure this less specific one also has a basic transition,
-   but ideally, duplicate definitions should be cleaned up.
-*/
-.submit-btn {
-  display: block;
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  background-color: #007AFF;
-  color: #FFFFFF;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  /* Adding base transition here too, in case of duplicate class issues */
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.15s ease-in-out;
-}
-
-.submit-btn:hover { /* This is less specific than the one with :focus and :active combined */
-  background-color: var(--color-primary-hover);
-  /* transform: translateY(-1px); Ensure this is consistent with other .submit-btn:hover */
-  /* box-shadow: ... ensure consistency */
-}
-
-.submit-btn:disabled {
-  background-color: var(--color-text-secondary);
-  cursor: not-allowed;
-  opacity: 0.7; /* Common practice for disabled state */
-}
-
-.error-message {
-  color: #FF3B30; /* Themed error color */
-  margin-top: 0.5rem;
-  font-size: 0.875rem; /* Tailwind text-sm */
-}
+/* Removed obsolete form styles to rely fully on Tailwind utilities */
 
 /* Results page styles */
 .results-container {
