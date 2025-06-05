@@ -47,6 +47,29 @@ build.bat
 * Källkoden är öppen för insyn → full transparens.
 
 ---
+### Digital signering & Windows SmartScreen
+
+För att `checker.exe` inte ska flaggas som okänd eller misstänkt av Windows
+SmartScreen behöver filen signeras med ett pålitligt kodcertifikat.
+
+1. **Skaffa certifikat** – helst ett EV Code Signing‑certifikat från en betrodd
+   utfärdare.
+2. **Signera** den skapade exe-filen efter byggsteget:
+
+   ```powershell
+   signtool sign /fd sha256 /a /tr http://timestamp.digicert.com dist/checker.exe
+   ```
+
+3. **Verifiera** signaturen:
+
+   ```powershell
+   signtool verify /pa /v dist/checker.exe
+   ```
+
+En signerad fil uppfattas som mer pålitlig och löper mindre risk att blockeras av
+SmartScreen eller antivirusprogram.
+
+---
 ## Support & frågor
 
 Har du frågor eller förbättringsförslag? Skapa gärna ett issue eller kontakta projektansvarig.
