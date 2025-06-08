@@ -23,7 +23,7 @@ function HomePage() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-[var(--color-text)] mb-4">
             Är din dator redo för Windows 11?
           </h1>
-          <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)] mb-2">
+          <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)] mb-2 bg-red-500">
             Fyll i din e-postadress så får du direkt ladda ned vårt testprogram.
           </p>
           <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)]">
