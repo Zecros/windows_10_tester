@@ -539,18 +539,19 @@ function InfoModal({ show, onClose }) {
   const allCodeLines = codeExplanationData.reduce((acc, segment) => acc.concat(segment.codeLines), []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop with blur effect */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+      {/* Backdrop with blur effect - clearly clickable for closing */}
       <div 
-        className="fixed inset-0 z-40 backdrop-blur-sm bg-black/30"
+        className="fixed inset-0 z-40 backdrop-blur-sm bg-black/40 cursor-pointer transition-opacity duration-300"
         onClick={onClose}
+        aria-label="Stäng genom att klicka bakgrunden"
       />
       
-      {/* Modal container with glass morphism */}
+      {/* Modal container with glass morphism - larger and more responsive */}
       <div 
-        className="relative z-50 w-11/12 max-w-5xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl"
+        className="relative z-50 w-[95%] max-w-6xl max-h-[92vh] overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-300 scale-[0.98] hover:scale-100"
         style={{
-          background: 'rgba(var(--color-secondary-bg-rgb), 0.7)',
+          background: 'rgba(var(--color-secondary-bg-rgb), 0.8)',
           backdropFilter: 'blur(12px)',
           border: '1px solid rgba(var(--color-border-rgb), 0.2)',
         }}
@@ -569,9 +570,9 @@ function InfoModal({ show, onClose }) {
           />
         </div>
         
-        {/* Close button */}
+        {/* Close button - more prominent and responsive */}
         <button 
-          className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full text-lg transition-all duration-300 hover:bg-black/10"
+          className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center rounded-full text-xl sm:text-2xl bg-black/5 transition-all duration-300 hover:bg-black/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-1 shadow-md"
           onClick={onClose} 
           aria-label="Stäng"
           style={{ color: 'var(--color-text)' }}
@@ -626,9 +627,9 @@ function InfoModal({ show, onClose }) {
                 ))}
               </div>
               
-              {/* Code content */}
-              <div className="code-content relative py-2 sm:py-3 px-2 sm:px-4 overflow-x-auto" style={{ color: 'var(--color-text)' }}> {/* Reduced padding on mobile */}
-                <pre><code className="python-code"> {/* Base text size from parent: text-xs sm:text-sm */}
+              {/* Code content - wider scrollable area */}
+              <div className="code-content relative py-2 sm:py-3 px-2 sm:px-4 overflow-x-auto w-full" style={{ color: 'var(--color-text)' }}> {/* Reduced padding on mobile */}
+                <pre className="whitespace-pre-wrap sm:whitespace-pre"><code className="python-code"> {/* Wrap text on very small screens */}
                   {codeExplanationData.map(segment => (
                     <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
                       {segment.codeLines.map((lineParts, lineIdx) => (
@@ -640,19 +641,21 @@ function InfoModal({ show, onClose }) {
                   ))}
                 </code></pre>
                 
-                {/* Explanations with glass morphism */}
+                {/* Explanations with glass morphism - more responsive */}
                 {codeExplanationData.map(segment => (
                   segment.explanation.text && // Only render if there's an explanation
                   <div
                     key={`exp-${segment.id}`}
-                    className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'} p-3 rounded-lg shadow-lg`}
+                    className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'} p-3 sm:p-4 rounded-lg shadow-lg`}
                     style={{ 
                       top: `${segment.topOffsetPx}px`,
-                      background: 'rgba(var(--color-secondary-bg-rgb), 0.7)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(var(--color-border-rgb), 0.2)',
-                      maxWidth: '280px',
-                      color: 'var(--color-text-secondary)'
+                      background: 'rgba(var(--color-secondary-bg-rgb), 0.8)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(var(--color-border-rgb), 0.3)',
+                      maxWidth: 'min(320px, 80%)', // Responsive width that grows with screen size but has a max
+                      minWidth: '200px',
+                      color: 'var(--color-text-secondary)',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
                     }}
                   >
                     {/* Explanation heading with gradient underline */}
