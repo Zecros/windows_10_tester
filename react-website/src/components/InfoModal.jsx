@@ -539,61 +539,141 @@ function InfoModal({ show, onClose }) {
   const allCodeLines = codeExplanationData.reduce((acc, segment) => acc.concat(segment.codeLines), []);
 
   return (
-    <>
-      <div className='modal-overlay' onClick={onClose}></div>
-      <aside className='info-modal' role='dialog' aria-modal='true'>
-        <button className='info-modal-close-button' onClick={onClose} aria-label='Stäng'>×</button>
-        <h2>Programkod förklarad</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop with blur effect */}
+      <div 
+        className="fixed inset-0 z-40 backdrop-blur-sm bg-black/30"
+        onClick={onClose}
+      />
+      
+      {/* Modal container with glass morphism */}
+      <div 
+        className="relative z-50 w-11/12 max-w-5xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl"
+        style={{
+          background: 'rgba(var(--color-secondary-bg-rgb), 0.7)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(var(--color-border-rgb), 0.2)',
+        }}
+      >
+        {/* Top decorative gradient bar */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" 
+          style={{ background: 'linear-gradient(to right, var(--color-primary), var(--color-secondary))' }}
+        />
         
-        <div className="code-editor-container font-mono"> {/* Ensure mono font stack */}
-          <div className="editor-toolbar">
-            <div className="file-tab active">
-              <span className="file-icon">📄</span> checker.py
-            </div>
+        {/* Inner light effect */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute top-0 left-1/4 right-1/4 h-40 opacity-5 blur-2xl" 
+            style={{ background: 'radial-gradient(circle, white, transparent 70%)' }}
+          />
+        </div>
+        
+        {/* Close button */}
+        <button 
+          className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full text-lg transition-all duration-300 hover:bg-black/10"
+          onClick={onClose} 
+          aria-label="Stäng"
+          style={{ color: 'var(--color-text)' }}
+        >
+          ×
+        </button>
+        
+        {/* Content container */}
+        <div className="p-6 md:p-8 relative z-10 overflow-y-auto max-h-[90vh]">
+          {/* Title with gradient underline */}
+          <div className="mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
+              Programkod förklarad
+            </h2>
+            <div className="h-px w-32 bg-gradient-to-r from-primary to-secondary opacity-60" />
           </div>
-          <div className="editor-content">
-            <div className="line-numbers">
-              {allCodeLines.map((_, index) => (
-                <div key={`ln-${index}`} className="line-number">
-                  {index + 1}
-                </div>
-              ))}
+          
+          {/* Code editor with glass morphism */}
+          <div 
+            className="code-editor-container font-mono rounded-lg overflow-hidden"
+            style={{
+              background: 'rgba(var(--color-secondary-bg-rgb), 0.3)',
+              border: '1px solid rgba(var(--color-border-rgb), 0.3)',
+            }}
+          > 
+            {/* Editor toolbar */}
+            <div 
+              className="editor-toolbar flex items-center p-2 border-b border-opacity-20"
+              style={{ borderColor: 'var(--color-border)' }}
+            >
+              <div className="file-tab active flex items-center px-3 py-1 rounded-md" style={{ background: 'rgba(var(--color-primary-rgb), 0.2)' }}>
+                <span className="file-icon mr-2">📄</span> 
+                <span style={{ color: 'var(--color-text)' }}>checker.py</span>
+              </div>
             </div>
-            <div className="code-content">
-              <pre><code className="python-code">
-                {codeExplanationData.map(segment => (
-                  <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
-                    {segment.codeLines.map((lineParts, lineIdx) => (
-                      <div key={lineIdx} className="code-line">
-                        {renderCodeLine(lineParts)}
-                      </div>
-                    ))}
+            
+            {/* Editor content */}
+            <div className="editor-content flex">
+              {/* Line numbers */}
+              <div 
+                className="line-numbers py-3 px-2 text-right select-none"
+                style={{ 
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  color: 'rgba(var(--color-text-secondary), 0.6)',
+                  minWidth: '2.5rem'
+                }}
+              >
+                {allCodeLines.map((_, index) => (
+                  <div key={`ln-${index}`} className="line-number text-xs">
+                    {index + 1}
                   </div>
                 ))}
-              </code></pre>
-              {/* Explanations will be positioned absolutely relative to code-content */}
-              {codeExplanationData.map(segment => (
-                segment.explanation.text && // Only render if there's an explanation
-                <div
-                  key={`exp-${segment.id}`}
-                  className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'}`}
-                  style={{ top: `${segment.topOffsetPx}px` }}
-                >
-                  <h4>{segment.explanation.title}</h4>
-                  <p>{segment.explanation.text}</p>
-                  {segment.explanation.points && segment.explanation.points.length > 0 && (
-                    <ul>
-                      {segment.explanation.points.map((point, idx) => <li key={idx}>{point}</li>)}
-                    </ul>
-                  )}
-                  {/* Arrow will be added via CSS pseudo-elements */}
-                </div>
-              ))}
+              </div>
+              
+              {/* Code content */}
+              <div className="code-content relative py-3 px-4 overflow-x-auto" style={{ color: 'var(--color-text)' }}>
+                <pre className="text-sm"><code className="python-code">
+                  {codeExplanationData.map(segment => (
+                    <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
+                      {segment.codeLines.map((lineParts, lineIdx) => (
+                        <div key={lineIdx} className="code-line">
+                          {renderCodeLine(lineParts)}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </code></pre>
+                
+                {/* Explanations with glass morphism */}
+                {codeExplanationData.map(segment => (
+                  segment.explanation.text && // Only render if there's an explanation
+                  <div
+                    key={`exp-${segment.id}`}
+                    className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'} p-3 rounded-lg shadow-lg`}
+                    style={{ 
+                      top: `${segment.topOffsetPx}px`,
+                      background: 'rgba(var(--color-secondary-bg-rgb), 0.7)',
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(var(--color-border-rgb), 0.2)',
+                      maxWidth: '280px',
+                      color: 'var(--color-text-secondary)'
+                    }}
+                  >
+                    {/* Explanation heading with gradient underline */}
+                    <h4 className="font-medium mb-2" style={{ color: 'var(--color-text)' }}>{segment.explanation.title}</h4>
+                    <div className="h-px w-12 mb-2 rounded-full bg-gradient-to-r from-primary to-secondary opacity-40" />
+                    
+                    <p className="text-sm mb-2">{segment.explanation.text}</p>
+                    
+                    {segment.explanation.points && segment.explanation.points.length > 0 && (
+                      <ul className="text-xs list-disc pl-4 space-y-1">
+                        {segment.explanation.points.map((point, idx) => <li key={idx}>{point}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </aside>
-    </>
+      </div>
+    </div>
   );
 }
 

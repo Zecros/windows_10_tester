@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EmailForm from '../components/EmailForm';
 import InfoModal from '../components/InfoModal';
 import SideInfoBox from '../components/SideInfoBox';
 
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Animation effect when component mounts
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleInfoButtonClick = () => {
     setIsModalOpen(true);
@@ -15,43 +21,82 @@ function HomePage() {
   };
 
   return (
-    <main className="relative container mx-auto px-4 py-12 md:py-16 flex justify-center">
-      {/* Main content box itself is the relative anchor for absolute side boxes */}
-      {/* Updated dark mode background to use CSS variable for the theme, and text colors to use theme names with explicit dark mode CSS variables */}
-      <div className="max-w-xl w-full bg-white dark:bg-[var(--color-secondary-bg)] rounded-lg shadow-xl p-6 sm:p-8 text-center relative">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-[var(--color-text)] mb-4">
-            Är din dator redo för Windows 11?
-          </h1>
-          <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)] mb-2 bg-red-500">
-            Fyll i din e-postadress så får du direkt ladda ned vårt testprogram.
-          </p>
-          <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)]">
-            Fungerar på både Windows 10 och Windows 11!
-          </p>
+    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, var(--color-bg) 0%, rgba(30, 41, 59, 0.8) 100%)',
+        perspective: '1000px'
+      }}>
+      
+      {/* Background geometric elements - these create subtle modern background shapes */}
+      <div className="absolute inset-0 overflow-hidden z-0">
+        <div className="absolute -top-20 -left-20 w-60 h-60 bg-gradient-to-br from-primary-500/10 to-primary-600/20 rounded-full blur-2xl" />
+        <div className="absolute top-1/3 -right-20 w-80 h-80 bg-gradient-to-bl from-secondary/10 to-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 left-1/4 w-72 h-72 bg-gradient-to-tr from-primary-500/10 to-secondary/10 rounded-full blur-2xl" />
+        
+        {/* Subtle grid overlay */}
+        <div 
+          className="absolute inset-0 opacity-10" 
+          style={{
+            backgroundImage: 'linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+      </div>
+      
+      {/* Main container with animation */}
+      <div 
+        className={`relative z-10 w-full max-w-4xl mx-auto px-4 py-8 transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      >
+        {/* Main content box with glass morphism effect */}
+        <div 
+          className="relative rounded-2xl p-8 backdrop-blur-lg overflow-hidden shadow-2xl"
+          style={{
+            background: 'rgba(var(--color-secondary-bg-rgb), 0.2)',
+            border: '1px solid rgba(var(--color-border-rgb), 0.2)',
+          }}
+        >
+          {/* Content container */}
+          <div className="relative z-10 text-center">
+            {/* Accent top line */}
+            <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 rounded-full"></div>
+            
+            <div className="mb-8">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-[var(--color-text)] mb-6 bg-clip-text text-transparent bg-gradient-to-br from-[var(--color-text)] to-[var(--color-text-secondary)]">
+                Är din dator redo för Windows 11?
+              </h1>
+              <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)] mb-3 max-w-2xl mx-auto">
+                Fyll i din e-postadress så får du direkt ladda ned vårt testprogram.
+              </p>
+              <p className="text-base sm:text-lg text-secondary-text dark:text-[var(--color-secondary-text)] max-w-2xl mx-auto">
+                Fungerar på både Windows 10 och Windows 11!
+              </p>
+            </div>
+            
+            {/* Email form with improved styling */}
+            <div className="max-w-md mx-auto">
+              <EmailForm onInfoButtonClick={handleInfoButtonClick} />
+            </div>
+            
+            <InfoModal show={isModalOpen} onClose={handleCloseModal} />
+          </div>
+          
+          {/* Decorative elements inside the main container */}
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-40 h-40 bg-primary/10 rounded-full blur-2xl z-0"></div>
+          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-40 h-40 bg-secondary/10 rounded-full blur-2xl z-0"></div>
         </div>
-        <EmailForm onInfoButtonClick={handleInfoButtonClick} />
-        <InfoModal show={isModalOpen} onClose={handleCloseModal} />
-
-        {/* Left SideInfoBox */}
-        {/* Positioned relative to the main content box.
-            It's 15rem (w-60) wide. We want a 2rem gap.
-            So, its left edge should be 17rem to the left of the main content's left edge.
-            Thus, left: -17rem (or -(15rem width + 2rem gap)).
-        */}
-        <div className="hidden md:block absolute top-1/2 -translate-y-1/2" style={{ left: '-17rem', width: '15rem' }}>
+        
+        {/* Side info boxes with improved positioning and styling */}
+        <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-0 -ml-56 w-48 transform transition-all duration-500 hover:scale-105">
           <SideInfoBox
             position="left"
             title="Varför testa?"
-          summary="Snabb koll på systemet."
-          hoverInfo="Kontrollen visar om din dator klarar Windows 11."
-          details={<p>Att testa i förväg hjälper dig planera för uppgraderingen och undvika överraskningar.</p>}
+            summary="Snabb koll på systemet."
+            hoverInfo="Kontrollen visar om din dator klarar Windows 11."
+            details={<p>Att testa i förväg hjälper dig planera för uppgraderingen och undvika överraskningar.</p>}
           />
         </div>
-
-        {/* Right SideInfoBox */}
-        {/* Its right edge should be 17rem to the right of the main content's right edge. */}
-        <div className="hidden md:block absolute top-1/2 -translate-y-1/2" style={{ right: '-17rem', width: '15rem' }}>
+        
+        <div className="hidden md:block absolute top-1/2 -translate-y-1/2 right-0 -mr-56 w-48 transform transition-all duration-500 hover:scale-105">
           <SideInfoBox
             position="right"
             title="Om verktyget"
