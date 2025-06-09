@@ -10,7 +10,7 @@ function SideInfoBox({ position = 'left', title, summary, hoverInfo, details }) 
       <div
         className={
           `group relative w-full p-5 backdrop-blur-sm cursor-pointer transform transition-all duration-500
-           rounded-xl overflow-hidden ${isHovered ? 'shadow-lg scale-[1.03]' : 'shadow-md'}`
+           rounded-xl overflow-hidden ${isHovered ? 'shadow-lg scale-[1.03]' : 'shadow-md'} text-left md:text-${position}` // Default to text-left, then apply position for md+
         }
         onClick={() => setOpen(true)}
         onMouseEnter={() => setIsHovered(true)}
@@ -20,12 +20,12 @@ function SideInfoBox({ position = 'left', title, summary, hoverInfo, details }) 
             ? 'rgba(var(--color-secondary-bg-rgb), 0.3)' 
             : 'rgba(var(--color-secondary-bg-rgb), 0.15)',
           border: '1px solid rgba(var(--color-border-rgb), 0.2)',
-          textAlign: position === 'left' ? 'left' : 'right'
+          // textAlign is now handled by Tailwind classes: text-left md:text-${position}
         }}
       >
         {/* Decorative elements */}
         <div 
-          className={`absolute ${position === 'left' ? '-left-10 -top-10' : '-right-10 -top-10'} w-20 h-20 rounded-full transition-opacity duration-700 ${isHovered ? 'opacity-60' : 'opacity-20'}`}
+          className={`absolute ${position === 'left' ? 'md:-left-10 -left-5 -top-5 md:-top-10' : 'md:-right-10 -right-5 -top-5 md:-top-10'} w-16 h-16 md:w-20 md:h-20 rounded-full transition-opacity duration-700 ${isHovered ? 'opacity-60' : 'opacity-20'}`}
           style={{
             background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)'
           }}
@@ -35,7 +35,7 @@ function SideInfoBox({ position = 'left', title, summary, hoverInfo, details }) 
         <div className="relative z-10">
           {/* Accent line */}
           <div 
-            className={`h-0.5 w-10 mb-4 transition-all duration-500 ${isHovered ? 'w-16' : 'w-10'} rounded-full ${position === 'left' ? 'ml-0 mr-auto' : 'mr-0 ml-auto'}`}
+            className={`h-0.5 w-10 mb-4 transition-all duration-500 ${isHovered ? 'w-16' : 'w-10'} rounded-full ${position === 'left' ? 'ml-0 mr-auto md:ml-0 md:mr-auto' : 'ml-0 mr-auto md:mr-0 md:ml-auto'}`} // Defaults to left-aligned for mobile
             style={{ background: 'linear-gradient(to right, var(--color-primary), var(--color-secondary))' }}
           />
 

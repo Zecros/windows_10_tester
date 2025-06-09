@@ -109,7 +109,7 @@ function EmailForm({ onInfoButtonClick }) {
             }}
           />
           
-          <span className="relative z-10 font-medium">Ladda ned testprogram</span>
+          <span className="relative z-10 font-medium text-base">Ladda ned testprogram</span>
         </button>
         
         {/* Secondary info button */}
@@ -129,7 +129,7 @@ function EmailForm({ onInfoButtonClick }) {
           onMouseEnter={() => setIsHovering('secondary')}
           onMouseLeave={() => setIsHovering(false)}
         >
-          <span className="relative z-10 font-medium">Läs mer om programmet</span>
+          <span className="relative z-10 font-medium text-base">Läs mer om programmet</span>
         </button>
       </div>
     </form>

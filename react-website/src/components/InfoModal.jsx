@@ -580,10 +580,10 @@ function InfoModal({ show, onClose }) {
         </button>
         
         {/* Content container */}
-        <div className="p-6 md:p-8 relative z-10 overflow-y-auto max-h-[90vh]">
+        <div className="p-4 sm:p-6 md:p-8 relative z-10 overflow-y-auto max-h-[90vh]">
           {/* Title with gradient underline */}
-          <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
               Programkod förklarad
             </h2>
             <div className="h-px w-32 bg-gradient-to-r from-primary to-secondary opacity-60" />
@@ -591,7 +591,7 @@ function InfoModal({ show, onClose }) {
           
           {/* Code editor with glass morphism */}
           <div 
-            className="code-editor-container font-mono rounded-lg overflow-hidden"
+            className="code-editor-container font-mono rounded-lg overflow-hidden text-xs sm:text-sm" // Base text size for code
             style={{
               background: 'rgba(var(--color-secondary-bg-rgb), 0.3)',
               border: '1px solid rgba(var(--color-border-rgb), 0.3)',
@@ -599,11 +599,11 @@ function InfoModal({ show, onClose }) {
           > 
             {/* Editor toolbar */}
             <div 
-              className="editor-toolbar flex items-center p-2 border-b border-opacity-20"
+              className="editor-toolbar flex items-center p-1 sm:p-2 border-b border-opacity-20" // Reduced padding on mobile
               style={{ borderColor: 'var(--color-border)' }}
             >
-              <div className="file-tab active flex items-center px-3 py-1 rounded-md" style={{ background: 'rgba(var(--color-primary-rgb), 0.2)' }}>
-                <span className="file-icon mr-2">📄</span> 
+              <div className="file-tab active flex items-center px-2 sm:px-3 py-1 rounded-md" style={{ background: 'rgba(var(--color-primary-rgb), 0.2)' }}> {/* Reduced padding on mobile */}
+                <span className="file-icon mr-1 sm:mr-2">📄</span>
                 <span style={{ color: 'var(--color-text)' }}>checker.py</span>
               </div>
             </div>
@@ -612,23 +612,23 @@ function InfoModal({ show, onClose }) {
             <div className="editor-content flex">
               {/* Line numbers */}
               <div 
-                className="line-numbers py-3 px-2 text-right select-none"
+                className="line-numbers py-2 sm:py-3 px-1 sm:px-2 text-right select-none" // Reduced padding on mobile
                 style={{ 
                   background: 'rgba(0, 0, 0, 0.2)',
                   color: 'rgba(var(--color-text-secondary), 0.6)',
-                  minWidth: '2.5rem'
+                  minWidth: '2rem' // Adjusted min-width
                 }}
               >
                 {allCodeLines.map((_, index) => (
-                  <div key={`ln-${index}`} className="line-number text-xs">
+                  <div key={`ln-${index}`} className="line-number text-xs sm:text-xs"> {/* Ensure line numbers are consistently small */}
                     {index + 1}
                   </div>
                 ))}
               </div>
               
               {/* Code content */}
-              <div className="code-content relative py-3 px-4 overflow-x-auto" style={{ color: 'var(--color-text)' }}>
-                <pre className="text-sm"><code className="python-code">
+              <div className="code-content relative py-2 sm:py-3 px-2 sm:px-4 overflow-x-auto" style={{ color: 'var(--color-text)' }}> {/* Reduced padding on mobile */}
+                <pre><code className="python-code"> {/* Base text size from parent: text-xs sm:text-sm */}
                   {codeExplanationData.map(segment => (
                     <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
                       {segment.codeLines.map((lineParts, lineIdx) => (
