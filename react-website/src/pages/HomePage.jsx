@@ -1,11 +1,103 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import EmailForm from '../components/EmailForm';
 import InfoModal from '../components/InfoModal';
 import SideInfoBox from '../components/SideInfoBox';
 
+// Utility function to check for overlap between two rectangles
+// Each rect is an object: { x, y, width, height }
+const checkOverlap = (rect1, rect2) => {
+  // Add a small buffer to prevent cards from touching
+  const buffer = 5; // 5px buffer
+
+  return (
+    rect1.x < rect2.x + rect2.width + buffer &&
+    rect1.x + rect1.width + buffer > rect2.x &&
+    rect1.y < rect2.y + rect2.height + buffer &&
+    rect1.y + rect1.height + buffer > rect2.y
+  );
+};
+
+const initialCardData = [
+  {
+    id: 'varfo-testa',
+    positionHint: 'left',
+    title: "Varför testa?",
+    summary: "Snabb koll på systemet.",
+    hoverInfo: "Kontrollen visar om din dator klarar Windows 11.",
+    details: <p>Att testa i förväg hjälper dig planera för uppgraderingen och undvika överraskningar.</p>
+  },
+  {
+    id: 'systemkrav',
+    positionHint: 'left',
+    title: "Systemkrav",
+    summary: "Hårdvarukrav för Windows 11.",
+    hoverInfo: "Klicka för att se kompletta systemkrav.",
+    details: <>
+      <p>För att köra Windows 11 krävs:</p>
+      <ul className="list-disc pl-5 mt-2 space-y-1">
+        <li>Modern processor (2 GHz+)</li>
+        <li>4 GB RAM</li>
+        <li>64 GB lagring</li>
+        <li>TPM 2.0</li>
+        <li>UEFI med Secure Boot</li>
+      </ul>
+    </>
+  },
+  {
+    id: 'dataskydd',
+    positionHint: 'left',
+    title: "Dataskydd",
+    summary: "Din integritet är viktig.",
+    hoverInfo: "Vi skyddar din personliga information.",
+    details: <p>Vi samlar bara in information som behövs för kompatibilitetstestet. Dina uppgifter delas aldrig med tredje part och lagras säkert.</p>
+  },
+  {
+    id: 'om-verktyget',
+    positionHint: 'right',
+    title: "Om verktyget",
+    summary: "Så fungerar programmet.",
+    hoverInfo: "Håll musen här för mer info.",
+    details: <p>Programmet läser av grundläggande hårdvaruinformation och sparar endast det allra nödvändigaste.</p>
+  },
+  {
+    id: 'windows-11-fordelar',
+    positionHint: 'right',
+    title: "Windows 11 fördelar",
+    summary: "Nya funktioner och förbättringar.",
+    hoverInfo: "Utforska fördelarna med uppgradering.",
+    details: <>
+      <p>Windows 11 erbjuder många förbättringar:</p>
+      <ul className="list-disc pl-5 mt-2 space-y-1">
+        <li>Modernt gränssnitt</li>
+        <li>Förbättrad prestanda</li>
+        <li>Android-appstöd</li>
+        <li>Bättre säkerhet</li>
+        <li>Förbättrade widgets</li>
+      </ul>
+    </>
+  },
+  {
+    id: 'hjalp-support',
+    positionHint: 'right',
+    title: "Hjälp & Support",
+    summary: "Behöver du mer hjälp?",
+    hoverInfo: "Kontakta oss för support.",
+    details: <p>Har du frågor om testet eller behöver hjälp? Kontakta vår support på <a href="mailto:support@helkom.se" className="text-primary hover:underline">support@helkom.se</a>.</p>
+  }
+];
+
 function HomePage() {
+  const cardSizeProfiles = [
+    { name: 'small', width: 160, heightRange: [100, 140] },
+    { name: 'medium', width: 200, heightRange: [150, 190] },
+    { name: 'large', width: 240, heightRange: [130, 170] },
+  ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [cardStyles, setCardStyles] = useState([]);
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+  const mainContentRef = useRef(null);
+  const cardsContainerRef = useRef(null);
 
   // Animation effect when component mounts
   useEffect(() => {
@@ -19,6 +111,138 @@ function HomePage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    const calculatePositions = () => {
+      const mobileBreakpoint = 768;
+      setIsMobileView(window.innerWidth < mobileBreakpoint);
+
+      if (window.innerWidth < mobileBreakpoint) {
+        setCardStyles([]); // Clear styles for smaller screens
+        return;
+      }
+
+      if (!mainContentRef.current || !cardsContainerRef.current) {
+        return; // Refs not ready
+      }
+
+      const mainContentRect = mainContentRef.current.getBoundingClientRect();
+      const cardsContainerRect = cardsContainerRef.current.getBoundingClientRect();
+
+      const placedCardsRects = [];
+      const relativeMainContentRect = {
+        x: mainContentRect.left - cardsContainerRect.left,
+        y: mainContentRect.top - cardsContainerRect.top,
+        width: mainContentRect.width,
+        height: mainContentRect.height,
+      };
+
+      const newStyles = initialCardData.map((card, index) => {
+        let cardPlaced = false;
+        let attempts = 0;
+        const maxAttempts = 30; // Max attempts to place a card
+
+        // Randomly select a size profile
+        const sizeProfile = cardSizeProfiles[Math.floor(Math.random() * cardSizeProfiles.length)];
+        const cardWidth = sizeProfile.width;
+        // Random height from its range
+        const cardHeight = Math.floor(Math.random() * (sizeProfile.heightRange[1] - sizeProfile.heightRange[0] + 1)) + sizeProfile.heightRange[0];
+
+        let currentCardRect = {};
+
+        while (!cardPlaced && attempts < maxAttempts) {
+          attempts++;
+
+          // Determine placement zone using positionHint
+          const cardDataForHint = initialCardData[index]; // Get current card data
+          const placeOnLeft = cardDataForHint.positionHint === 'left';
+
+          let randomTop, randomLeft, randomRight;
+
+          if (placeOnLeft) {
+            // Try to place on the left of the main content
+            randomTop = Math.random() * (cardsContainerRect.height - cardHeight);
+            randomLeft = Math.random() * (relativeMainContentRect.x - cardWidth - 10); // 10px buffer from main content
+            randomRight = undefined;
+          } else {
+            // Try to place on the right of the main content
+            randomTop = Math.random() * (cardsContainerRect.height - cardHeight);
+            randomLeft = undefined;
+            randomRight = Math.random() * (cardsContainerRect.width - (relativeMainContentRect.x + relativeMainContentRect.width) - cardWidth - 10); // 10px buffer
+          }
+
+          // Ensure positions are not negative (e.g. if main content is too close to edge)
+          if (randomLeft !== undefined && randomLeft < 5) randomLeft = 5; // 5px buffer from container edge
+          if (randomRight !== undefined && randomRight < 5) randomRight = 5;
+          if (randomTop < 5) randomTop = 5;
+
+
+          currentCardRect = {
+            x: randomLeft !== undefined ? randomLeft : cardsContainerRect.width - randomRight - cardWidth,
+            y: randomTop,
+            width: cardWidth,
+            height: cardHeight,
+          };
+
+          // Collision check
+          let hasOverlap = checkOverlap(currentCardRect, relativeMainContentRect);
+
+          if (!hasOverlap) {
+            for (const placedRect of placedCardsRects) {
+              if (checkOverlap(currentCardRect, placedRect)) {
+                hasOverlap = true;
+                break;
+              }
+            }
+          }
+
+          if (!hasOverlap) {
+            cardPlaced = true;
+          }
+        } // End of while loop
+
+        if (cardPlaced) {
+          placedCardsRects.push(currentCardRect);
+          return {
+            id: card.id,
+            style: {
+              position: 'absolute',
+              width: `${currentCardRect.width}px`,
+              height: `${currentCardRect.height}px`,
+              top: `${currentCardRect.y}px`,
+              left: currentCardRect.x !== undefined && currentCardRect.x < cardsContainerRect.width / 2 ? `${currentCardRect.x}px` : undefined,
+              right: currentCardRect.x !== undefined && currentCardRect.x >= cardsContainerRect.width / 2 ? `${cardsContainerRect.width - currentCardRect.x - currentCardRect.width}px` : undefined,
+              zIndex: 10, // Default z-index
+            },
+          };
+        } else {
+          // Fallback: if card can't be placed, hide it or give it a default position
+          console.warn(`Could not place card "${card.title}" after ${maxAttempts} attempts.`);
+          return {
+            id: card.id,
+            style: { display: 'none' }, // Hide if not placeable
+          };
+        }
+      }); // End of initialCardData.map
+
+      setCardStyles(newStyles.filter(s => s.style.display !== 'none')); // Update state with successfully placed cards
+    };
+
+    calculatePositions(); // Initial calculation
+
+    // Debounced resize handler
+    let timeoutId;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(calculatePositions, 250); // Debounce by 250ms
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []); // Empty dependency array to run on mount and clean up on unmount
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
@@ -50,6 +274,7 @@ function HomePage() {
       >
         {/* Main content box with glass morphism effect */}
         <div 
+          ref={mainContentRef}
           className="relative rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-lg overflow-hidden shadow-2xl"
           style={{
             background: 'rgba(var(--color-secondary-bg-rgb), 0.2)',
@@ -86,95 +311,44 @@ function HomePage() {
           <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-40 h-40 bg-secondary/10 rounded-full blur-2xl z-0"></div>
         </div>
         
-        {/* Container for SideInfoBoxes on sides with varied sizes and positions */}
-        <div className="mt-8 md:mt-0 w-full md:w-auto">
-          {/* Left Side Boxes */}
-          
-          {/* Left Side Box 1 - Varför testa? - Smaller box at top */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[10%] md:left-5 md:w-44 transform transition-all duration-500 hover:md:scale-105 z-10">
-            <SideInfoBox
-              position="left"
-              title="Varför testa?"
-              summary="Snabb koll på systemet."
-              hoverInfo="Kontrollen visar om din dator klarar Windows 11."
-              details={<p>Att testa i förväg hjälper dig planera för uppgraderingen och undvika överraskningar.</p>}
-            />
-          </div>
-
-          {/* Left Side Box 2 - Systemkrav - Medium box in middle */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[43%] md:left-0 md:w-52 transform transition-all duration-500 hover:md:scale-105 z-20">
-            <SideInfoBox
-              position="left"
-              title="Systemkrav"
-              summary="Hårdvarukrav för Windows 11."
-              hoverInfo="Klicka för att se kompletta systemkrav."
-              details={<>
-                <p>För att köra Windows 11 krävs:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Modern processor (2 GHz+)</li>
-                  <li>4 GB RAM</li>
-                  <li>64 GB lagring</li>
-                  <li>TPM 2.0</li>
-                  <li>UEFI med Secure Boot</li>
-                </ul>
-              </>}
-            />
-          </div>
-
-          {/* Left Side Box 3 - Dataskydd - Wide box at bottom */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[78%] md:left-8 md:w-64 transform transition-all duration-500 hover:md:scale-105 z-10">
-            <SideInfoBox
-              position="left"
-              title="Dataskydd"
-              summary="Din integritet är viktig."
-              hoverInfo="Vi skyddar din personliga information."
-              details={<p>Vi samlar bara in information som behövs för kompatibilitetstestet. Dina uppgifter delas aldrig med tredje part och lagras säkert.</p>}
-            />
-          </div>
-
-          {/* Right Side Boxes */}
-          
-          {/* Right Side Box 1 - Om verktyget - Wide box at top */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[8%] md:right-4 md:w-56 transform transition-all duration-500 hover:md:scale-105 z-10">
-            <SideInfoBox
-              position="right"
-              title="Om verktyget"
-              summary="Så fungerar programmet."
-              hoverInfo="Håll musen här för mer info."
-              details={<p>Programmet läser av grundläggande hårdvaruinformation och sparar endast det allra nödvändigaste.</p>}
-            />
-          </div>
-
-          {/* Right Side Box 2 - Windows 11 fördelar - Small tall box in middle */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[38%] md:right-10 md:w-40 transform transition-all duration-500 hover:md:scale-105 z-20">
-            <SideInfoBox
-              position="right"
-              title="Windows 11 fördelar"
-              summary="Nya funktioner och förbättringar."
-              hoverInfo="Utforska fördelarna med uppgradering."
-              details={<>
-                <p>Windows 11 erbjuder många förbättringar:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Modernt gränssnitt</li>
-                  <li>Förbättrad prestanda</li>
-                  <li>Android-appstöd</li>
-                  <li>Bättre säkerhet</li>
-                  <li>Förbättrade widgets</li>
-                </ul>
-              </>}
-            />
-          </div>
-
-          {/* Right Side Box 3 - Hjälp & Support - Medium box at bottom */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[73%] md:right-0 md:w-48 transform transition-all duration-500 hover:md:scale-105 z-10">
-            <SideInfoBox
-              position="right"
-              title="Hjälp & Support"
-              summary="Behöver du mer hjälp?"
-              hoverInfo="Kontakta oss för support."
-              details={<p>Har du frågor om testet eller behöver hjälp? Kontakta vår support på <a href="mailto:support@helkom.se" className="text-primary hover:underline">support@helkom.se</a>.</p>}
-            />
-          </div>
+        {/* Container for SideInfoBoxes - now dynamically populated */}
+        <div ref={cardsContainerRef} className={`mt-8 md:mt-0 w-full md:w-auto ${isMobileView ? '' : 'relative'}`}>
+          {isMobileView ? (
+            // Mobile view: Stacked cards
+            initialCardData.map(cardData => (
+              <div key={cardData.id} className="w-full max-w-md mx-auto mb-4 last:mb-0 transform transition-all duration-500"> {/* Added base animation classes */}
+                <SideInfoBox
+                  position={cardData.positionHint} // Use hint for consistency
+                  title={cardData.title}
+                  summary={cardData.summary}
+                  hoverInfo={cardData.hoverInfo}
+                  details={cardData.details}
+                />
+              </div>
+            ))
+          ) : (
+            // Desktop view: Dynamically positioned cards
+            cardStyles.map(item => {
+              const cardData = initialCardData.find(cd => cd.id === item.id);
+              if (!cardData) return null;
+              const boxPositionProp = item.style.left !== undefined ? 'left' : 'right';
+              return (
+                <div
+                  key={cardData.id}
+                  style={item.style}
+                  className="transform transition-all duration-500 hover:md:scale-105" // Base animation classes
+                >
+                  <SideInfoBox
+                    position={boxPositionProp}
+                    title={cardData.title}
+                    summary={cardData.summary}
+                    hoverInfo={cardData.hoverInfo}
+                    details={cardData.details}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </main>
