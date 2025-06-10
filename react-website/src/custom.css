@@ -1,10 +1,48 @@
+/* Animations for floating particles */
+@keyframes float1 {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-5px) translateX(3px); }
+  50% { transform: translateY(-10px) translateX(0); }
+  75% { transform: translateY(-5px) translateX(-3px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes float2 {
+  0% { transform: translateY(0) translateX(0); }
+  33% { transform: translateY(-7px) translateX(-4px); }
+  66% { transform: translateY(-3px) translateX(4px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes floatSlow1 {
+  0% { transform: translateY(0) translateX(0); }
+  33% { transform: translateY(15px) translateX(10px); }
+  66% { transform: translateY(7px) translateX(-7px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes floatSlow2 {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(10px) translateX(-10px); }
+  50% { transform: translateY(15px) translateX(0); }
+  75% { transform: translateY(5px) translateX(7px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes floatSlow3 {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  33% { transform: translateY(-12px) translateX(5px) rotate(10deg); }
+  66% { transform: translateY(8px) translateX(10px) rotate(-5deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
 /* Global styles */
 :root {
   /* Base colors */
-  --color-primary: #3b82f6; /* blue-500 */
-  --color-primary-rgb: 59, 130, 246; /* blue-500 RGB values */
-  --color-secondary: #64748b; /* slate-500 */
-  --color-secondary-rgb: 100, 116, 139; /* slate-500 RGB values */
+  --color-primary: #0c4c84; /* HELkom main color */
+  --color-primary-rgb: 12, 76, 132; /* #0c4c84 RGB values */
+  --color-secondary: #198563; /* HELkom secondary color */
+  --color-secondary-rgb: 25, 133, 99; /* #198563 RGB values */
   
   /* Light theme defaults */
   --color-bg: #ffffff;
@@ -311,12 +349,30 @@ body {
   margin-bottom: 4px;
 }
 
-/* .explanation-left and .explanation-right now primarily act as selectors for the desktop view */
-.explanation-left {}
-.explanation-right {}
+/* Override the arrow styles with proper positioning for the new layout */
+.explanation-item::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  z-index: 2;
+}
 
-/* Remove the ::after for base .explanation-item as it's for side-positioned elements */
-/* .explanation-item::after { display: none; } */
+.explanation-left::after {
+  left: 100%;
+  margin-left: -1px;
+  border-width: 8px 0 8px 8px;
+  border-color: transparent transparent transparent rgba(var(--color-secondary-bg-rgb), 0.8);
+}
+
+.explanation-right::after {
+  right: 100%;
+  margin-right: -1px;
+  border-width: 8px 8px 8px 0;
+  border-color: transparent rgba(var(--color-secondary-bg-rgb), 0.8) transparent transparent;
+}
 
 
 /* Media query for wider screens (desktop view for explanations) */
@@ -360,6 +416,57 @@ body {
     border-width: 8px 10px 8px 0;
     border-color: transparent rgba(var(--color-secondary-bg-rgb), 0.9) transparent transparent; /* Match item background */
   }
+}
+
+/* Special rules for InfoModal explanations */
+.code-content {
+  position: relative;
+}
+
+/* Pulse animation for explanation indicators */
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Interactive code segments with explanations */
+.has-explanation {
+  transition: all 0.2s ease;
+}
+
+.has-explanation:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.07);
+  border-radius: 4px;
+}
+
+/* Base styling for explanation items */
+.explanation-item {
+  position: absolute;
+  width: 200px;
+  z-index: 20;
+}
+
+/* Position explanations to the sides */
+.explanation-left {
+  right: calc(100% + 20px);
+}
+
+.explanation-right {
+  left: calc(100% + 20px);
 }
 
 /* Highlighted Code Segments */

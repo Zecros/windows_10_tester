@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // Helper function to render code lines with syntax highlighting
 const renderCodeLine = (lineParts) => {
@@ -10,6 +11,7 @@ const renderCodeLine = (lineParts) => {
   });
 };
 
+// Data för kodsegment med förklaringar
 const codeExplanationData = [
   {
     id: 'segment-1',
@@ -538,7 +540,9 @@ function InfoModal({ show, onClose }) {
   // Calculate total number of code lines for line numbering
   const allCodeLines = codeExplanationData.reduce((acc, segment) => acc.concat(segment.codeLines), []);
 
-  return (
+  // Use React Portal to render directly to document.body
+  // This prevents parent CSS from constraining the modal
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
       {/* Backdrop with blur effect - clearly clickable for closing */}
       <div 
@@ -628,56 +632,77 @@ function InfoModal({ show, onClose }) {
               </div>
               
               {/* Code content - wider scrollable area */}
-              <div className="code-content relative py-2 sm:py-3 px-2 sm:px-4 overflow-x-auto w-full" style={{ color: 'var(--color-text)' }}> {/* Reduced padding on mobile */}
-                <pre className="whitespace-pre-wrap sm:whitespace-pre"><code className="python-code"> {/* Wrap text on very small screens */}
-                  {codeExplanationData.map(segment => (
-                    <div key={segment.id} className={segment.explanation.highlightTarget ? 'code-highlight-segment' : ''}>
-                      {segment.codeLines.map((lineParts, lineIdx) => (
-                        <div key={lineIdx} className="code-line">
-                          {renderCodeLine(lineParts)}
+              <div className="code-content relative py-2 sm:py-3 px-2 sm:px-4 overflow-x-auto w-full" style={{ color: 'var(--color-text)', position: 'relative' }}> {/* Ensure position relative for absolute positioning of explanations */}
+                {/* Track which segment is being hovered */}
+                <div className="relative">
+                  {/* Code display with hover detection */}
+                  <pre className="whitespace-pre-wrap sm:whitespace-pre relative z-10"><code className="python-code"> {/* Wrap text on very small screens */}
+                    {codeExplanationData.map(segment => {
+                      // Create local state for tracking hover
+                      const [isHovered, setIsHovered] = useState(false);
+                      
+                      return (
+                        <div 
+                          key={segment.id} 
+                          className={`code-segment ${segment.explanation.highlightTarget ? 'code-highlight-segment' : 'hover:bg-primary/5'} ${segment.explanation.text ? 'has-explanation cursor-help' : ''} relative transition-all duration-300`}
+                          onMouseEnter={() => segment.explanation.text && setIsHovered(true)}
+                          onMouseLeave={() => segment.explanation.text && setIsHovered(false)}
+                        >
+                          {/* Show a subtle indicator if this segment has an explanation */}
+                          {segment.explanation.text && (
+                            <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/40 opacity-75 pulse-animation"></div>
+                          )}
+                          
+                          {/* Code lines */}
+                          {segment.codeLines.map((lineParts, lineIdx) => (
+                            <div key={lineIdx} className="code-line">
+                              {renderCodeLine(lineParts)}
+                            </div>
+                          ))}
+                          
+                          {/* Explanation that appears on hover - with smooth fade in/out */}
+                          {segment.explanation.text && (
+                            <div
+                              key={`exp-${segment.id}`}
+                              className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'} p-3 sm:p-4 rounded-lg shadow-lg transition-all duration-300`}
+                              style={{ 
+                                top: `${(segment.codeLines.length * 10)}px`,
+                                background: 'rgba(var(--color-secondary-bg-rgb), 0.8)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(var(--color-border-rgb), 0.3)',
+                                color: 'var(--color-text-secondary)',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                                opacity: isHovered ? 1 : 0,
+                                visibility: isHovered ? 'visible' : 'hidden',
+                                transform: isHovered ? 'translateY(0) scale(1)' : `translateY(${segment.explanation.position === 'left' ? '-10px' : '10px'}) scale(0.98)`,
+                                zIndex: isHovered ? 30 : -1
+                              }}
+                            >
+                              {/* Explanation heading with gradient underline */}
+                              <h4 className="font-medium mb-2" style={{ color: 'var(--color-text)' }}>{segment.explanation.title}</h4>
+                              <div className="h-px w-12 mb-2 rounded-full bg-gradient-to-r from-primary to-secondary opacity-40" />
+                              
+                              <p className="text-sm mb-2">{segment.explanation.text}</p>
+                              
+                              {segment.explanation.points && segment.explanation.points.length > 0 && (
+                                <ul className="text-xs list-disc pl-4 space-y-1">
+                                  {segment.explanation.points.map((point, idx) => <li key={idx}>{point}</li>)}
+                                </ul>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  ))}
-                </code></pre>
-                
-                {/* Explanations with glass morphism - more responsive */}
-                {codeExplanationData.map(segment => (
-                  segment.explanation.text && // Only render if there's an explanation
-                  <div
-                    key={`exp-${segment.id}`}
-                    className={`explanation-item ${segment.explanation.position === 'left' ? 'explanation-left' : 'explanation-right'} p-3 sm:p-4 rounded-lg shadow-lg`}
-                    style={{ 
-                      top: `${segment.topOffsetPx}px`,
-                      background: 'rgba(var(--color-secondary-bg-rgb), 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(var(--color-border-rgb), 0.3)',
-                      maxWidth: 'min(320px, 80%)', // Responsive width that grows with screen size but has a max
-                      minWidth: '200px',
-                      color: 'var(--color-text-secondary)',
-                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
-                    }}
-                  >
-                    {/* Explanation heading with gradient underline */}
-                    <h4 className="font-medium mb-2" style={{ color: 'var(--color-text)' }}>{segment.explanation.title}</h4>
-                    <div className="h-px w-12 mb-2 rounded-full bg-gradient-to-r from-primary to-secondary opacity-40" />
-                    
-                    <p className="text-sm mb-2">{segment.explanation.text}</p>
-                    
-                    {segment.explanation.points && segment.explanation.points.length > 0 && (
-                      <ul className="text-xs list-disc pl-4 space-y-1">
-                        {segment.explanation.points.map((point, idx) => <li key={idx}>{point}</li>)}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+                      );
+                    })}
+                  </code></pre>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
 
 export default InfoModal;

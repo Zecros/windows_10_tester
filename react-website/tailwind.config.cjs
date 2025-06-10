@@ -9,6 +9,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        'float1': 'float1 8s ease-in-out infinite',
+        'float2': 'float2 6s ease-in-out infinite',
+        'floatSlow1': 'floatSlow1 15s ease-in-out infinite',
+        'floatSlow2': 'floatSlow2 18s ease-in-out infinite',
+        'floatSlow3': 'floatSlow3 20s ease-in-out infinite',
+      },
       fontFamily: {
         sans: [
           '-apple-system',

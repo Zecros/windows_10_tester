@@ -86,10 +86,12 @@ function HomePage() {
           <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-40 h-40 bg-secondary/10 rounded-full blur-2xl z-0"></div>
         </div>
         
-        {/* Container for SideInfoBoxes - flex column on mobile, then absolute positioning for md+ */}
-        <div className="mt-8 md:mt-0 w-full md:w-auto flex flex-col md:block items-center gap-6 md:gap-0">
-          {/* Left SideInfoBox */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-1/2 md:-translate-y-1/2 md:left-0 md:-ml-56 md:w-48 transform transition-all duration-500 hover:md:scale-105">
+        {/* Container for SideInfoBoxes on sides with varied sizes and positions */}
+        <div className="mt-8 md:mt-0 w-full md:w-auto">
+          {/* Left Side Boxes */}
+          
+          {/* Left Side Box 1 - Varför testa? - Smaller box at top */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[10%] md:left-5 md:w-44 transform transition-all duration-500 hover:md:scale-105 z-10">
             <SideInfoBox
               position="left"
               title="Varför testa?"
@@ -99,14 +101,78 @@ function HomePage() {
             />
           </div>
 
-          {/* Right SideInfoBox */}
-          <div className="w-full max-w-md md:max-w-none md:absolute md:top-1/2 md:-translate-y-1/2 md:right-0 md:-mr-56 md:w-48 transform transition-all duration-500 hover:md:scale-105">
+          {/* Left Side Box 2 - Systemkrav - Medium box in middle */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[43%] md:left-0 md:w-52 transform transition-all duration-500 hover:md:scale-105 z-20">
+            <SideInfoBox
+              position="left"
+              title="Systemkrav"
+              summary="Hårdvarukrav för Windows 11."
+              hoverInfo="Klicka för att se kompletta systemkrav."
+              details={<>
+                <p>För att köra Windows 11 krävs:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Modern processor (2 GHz+)</li>
+                  <li>4 GB RAM</li>
+                  <li>64 GB lagring</li>
+                  <li>TPM 2.0</li>
+                  <li>UEFI med Secure Boot</li>
+                </ul>
+              </>}
+            />
+          </div>
+
+          {/* Left Side Box 3 - Dataskydd - Wide box at bottom */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[78%] md:left-8 md:w-64 transform transition-all duration-500 hover:md:scale-105 z-10">
+            <SideInfoBox
+              position="left"
+              title="Dataskydd"
+              summary="Din integritet är viktig."
+              hoverInfo="Vi skyddar din personliga information."
+              details={<p>Vi samlar bara in information som behövs för kompatibilitetstestet. Dina uppgifter delas aldrig med tredje part och lagras säkert.</p>}
+            />
+          </div>
+
+          {/* Right Side Boxes */}
+          
+          {/* Right Side Box 1 - Om verktyget - Wide box at top */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[8%] md:right-4 md:w-56 transform transition-all duration-500 hover:md:scale-105 z-10">
             <SideInfoBox
               position="right"
               title="Om verktyget"
               summary="Så fungerar programmet."
               hoverInfo="Håll musen här för mer info."
               details={<p>Programmet läser av grundläggande hårdvaruinformation och sparar endast det allra nödvändigaste.</p>}
+            />
+          </div>
+
+          {/* Right Side Box 2 - Windows 11 fördelar - Small tall box in middle */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[38%] md:right-10 md:w-40 transform transition-all duration-500 hover:md:scale-105 z-20">
+            <SideInfoBox
+              position="right"
+              title="Windows 11 fördelar"
+              summary="Nya funktioner och förbättringar."
+              hoverInfo="Utforska fördelarna med uppgradering."
+              details={<>
+                <p>Windows 11 erbjuder många förbättringar:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Modernt gränssnitt</li>
+                  <li>Förbättrad prestanda</li>
+                  <li>Android-appstöd</li>
+                  <li>Bättre säkerhet</li>
+                  <li>Förbättrade widgets</li>
+                </ul>
+              </>}
+            />
+          </div>
+
+          {/* Right Side Box 3 - Hjälp & Support - Medium box at bottom */}
+          <div className="w-full max-w-md md:max-w-none md:absolute md:top-[73%] md:right-0 md:w-48 transform transition-all duration-500 hover:md:scale-105 z-10">
+            <SideInfoBox
+              position="right"
+              title="Hjälp & Support"
+              summary="Behöver du mer hjälp?"
+              hoverInfo="Kontakta oss för support."
+              details={<p>Har du frågor om testet eller behöver hjälp? Kontakta vår support på <a href="mailto:support@helkom.se" className="text-primary hover:underline">support@helkom.se</a>.</p>}
             />
           </div>
         </div>
