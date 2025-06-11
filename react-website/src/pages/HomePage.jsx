@@ -17,6 +17,32 @@ const checkOverlap = (rect1, rect2) => {
   );
 };
 
+// Helper function to check if a card is in a "shadow zone" (directly above or below main content)
+const isCardInShadowZone = (cardRect, mainContentRect) => {
+  const horizontalOverlapThreshold = 0.3; // Card needs to overlap at least 30% horizontally with main content's span
+
+  // Check for horizontal alignment/overlap with the main content
+  const cardStartX = cardRect.x;
+  const cardEndX = cardRect.x + cardRect.width;
+  const mainContentStartX = mainContentRect.x;
+  const mainContentEndX = mainContentRect.x + mainContentRect.width;
+
+  // Calculate the width of the horizontal overlap
+  const overlapX = Math.max(0, Math.min(cardEndX, mainContentEndX) - Math.max(cardStartX, mainContentStartX));
+
+  // Is there significant horizontal overlap?
+  if (overlapX >= cardRect.width * horizontalOverlapThreshold) {
+    // Card is horizontally aligned with main content. Now check if it's purely above or below.
+    const cardFullyAbove = cardRect.y + cardRect.height < mainContentRect.y;
+    const cardFullyBelow = cardRect.y > mainContentRect.y + mainContentRect.height;
+
+    if (cardFullyAbove || cardFullyBelow) {
+      return true; // Card is in a shadow zone
+    }
+  }
+  return false; // Card is not in a shadow zone
+};
+
 const initialCardData = [
   {
     id: 'varfo-testa',
@@ -151,30 +177,61 @@ function HomePage() {
         let currentCardRect = {};
 
         while (!cardPlaced && attempts < maxAttempts) {
-          attempts++;
+          attempts++; // Moved to the beginning of the loop
 
           // Determine placement zone using positionHint
           const cardDataForHint = initialCardData[index]; // Get current card data
           const placeOnLeft = cardDataForHint.positionHint === 'left';
 
-          let randomTop, randomLeft, randomRight;
+          let randomLeft, randomRight;
+
+          // Refined vertical placement logic for randomTop
+          let randomTop;
+          const verticalBuffer = cardHeight * 0.5; // How much of a card can extend beyond main content vertically
+          const mainContentTop = relativeMainContentRect.y;
+          const mainContentBottom = relativeMainContentRect.y + relativeMainContentRect.height;
+
+          // Define a preferred vertical zone around the main content
+          // Min top position for the card
+          let preferredMinY = mainContentTop - verticalBuffer;
+          // Max top position for the card
+          let preferredMaxY = mainContentBottom + verticalBuffer - cardHeight;
+
+          // Clamp preferredMinY to be at least 5px from the container top
+          preferredMinY = Math.max(5, preferredMinY);
+
+          // Clamp preferredMaxY to ensure the card fits within the container and has a 5px bottom buffer
+          preferredMaxY = Math.min(cardsContainerRect.height - cardHeight - 5, preferredMaxY);
+
+          if (preferredMaxY > preferredMinY) {
+            // If the preferred zone is valid (positive height)
+            randomTop = Math.random() * (preferredMaxY - preferredMinY) + preferredMinY;
+          } else {
+            // Fallback if the preferred zone is invalid or too small
+            // Distribute across the full available height, ensuring 5px buffer top/bottom
+            let fallbackMinY = 5;
+            let fallbackMaxY = cardsContainerRect.height - cardHeight - 5;
+            if (fallbackMaxY < fallbackMinY) { // Handle cases where container is too small for card + buffers
+                 fallbackMaxY = fallbackMinY; // Place it at min if no room
+            }
+            randomTop = Math.random() * (fallbackMaxY - fallbackMinY) + fallbackMinY;
+          }
+          // Ensure randomTop is not NaN if calculation somehow leads to it, though unlikely with checks.
+          if (isNaN(randomTop)) randomTop = 5;
 
           if (placeOnLeft) {
             // Try to place on the left of the main content
-            randomTop = Math.random() * (cardsContainerRect.height - cardHeight);
             randomLeft = Math.random() * (relativeMainContentRect.x - cardWidth - 10); // 10px buffer from main content
             randomRight = undefined;
           } else {
             // Try to place on the right of the main content
-            randomTop = Math.random() * (cardsContainerRect.height - cardHeight);
             randomLeft = undefined;
             randomRight = Math.random() * (cardsContainerRect.width - (relativeMainContentRect.x + relativeMainContentRect.width) - cardWidth - 10); // 10px buffer
           }
 
-          // Ensure positions are not negative (e.g. if main content is too close to edge)
+          // Ensure horizontal positions are not negative (e.g. if main content is too close to edge)
           if (randomLeft !== undefined && randomLeft < 5) randomLeft = 5; // 5px buffer from container edge
           if (randomRight !== undefined && randomRight < 5) randomRight = 5;
-          if (randomTop < 5) randomTop = 5;
 
 
           currentCardRect = {
@@ -184,9 +241,15 @@ function HomePage() {
             height: cardHeight,
           };
 
-          // Collision check
+          // NEW: Shadow Zone Check
+          if (isCardInShadowZone(currentCardRect, relativeMainContentRect)) {
+            continue; // Invalid position, try a new one for the next attempt
+          }
+
+          // EXISTING: Collision check with main content
           let hasOverlap = checkOverlap(currentCardRect, relativeMainContentRect);
 
+          // If no overlap with main content, check other cards
           if (!hasOverlap) {
             for (const placedRect of placedCardsRects) {
               if (checkOverlap(currentCardRect, placedRect)) {
